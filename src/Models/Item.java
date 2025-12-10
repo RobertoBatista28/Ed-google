@@ -1,14 +1,23 @@
 package Models;
 
 public class Item {
+    // ----------------------------------------------------------------
+    // Fields
+    // ----------------------------------------------------------------
     private String name;
     private String type;
 
+    // ----------------------------------------------------------------
+    // Constructor
+    // ----------------------------------------------------------------
     public Item(String name, String type) {
         this.name = name;
         this.type = type;
     }
 
+    // ----------------------------------------------------------------
+    // Getters & Overrides
+    // ----------------------------------------------------------------
     public String getName() {
         return name;
     }
@@ -28,5 +37,12 @@ public class Item {
         if (obj == null || getClass() != obj.getClass()) return false;
         Item item = (Item) obj;
         return name.equals(item.name) && type.equals(item.type);
+    }
+
+    @Override
+    public int hashCode() {
+        int result = name != null ? name.hashCode() : 0;
+        result = 31 * result + (type != null ? type.hashCode() : 0);
+        return result;
     }
 }

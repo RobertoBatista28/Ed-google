@@ -7,19 +7,31 @@ import java.awt.event.KeyEvent;
 
 public class GameController extends KeyAdapter {
 
+    // ----------------------------------------------------------------
+    // Fields
+    // ----------------------------------------------------------------
     private GameManager gameManager;
     private MapPanel mapPanel;
     private StatsPanel statsPanel;
 
+    // ----------------------------------------------------------------
+    // Constructor
+    // ----------------------------------------------------------------
     public GameController(GameManager gameManager, MapPanel mapPanel) {
         this.gameManager = gameManager;
         this.mapPanel = mapPanel;
     }
 
+    // ----------------------------------------------------------------
+    // Methods
+    // ----------------------------------------------------------------
     public void setStatsPanel(StatsPanel statsPanel) {
         this.statsPanel = statsPanel;
     }
 
+    // ----------------------------------------------------------------
+    // Key Events
+    // ----------------------------------------------------------------
     @Override
     public void keyPressed(KeyEvent e) {
         if (gameManager.getCurrentPlayer() == null || gameManager.getCurrentPlayer().isBot()) {

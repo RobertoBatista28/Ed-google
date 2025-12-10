@@ -47,15 +47,14 @@ public class Player {
         this.color = color;
         this.isBot = isBot;
         this.characterType = characterType;
-
         this.remainingMoves = 0;
         this.lastDirection = "DOWN";
         this.inventory = new ArrayUnorderedList<>();
-
-        // Initialize stats
         this.totalMoves = 0;
         this.path = new ArrayUnorderedList<>();
         this.path.add(startRoom);
+
+        // All statistics start at 0
         this.leverInteractions = 0;
         this.questionsCorrect = 0;
         this.questionsIncorrect = 0;

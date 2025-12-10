@@ -158,10 +158,6 @@ public class Graph<T> implements GraphADT<T> {
                 x = traversalQueue.dequeue();
                 resultList.add(vertices[x]);
 
-                /**
-                 * Find all vertices adjacent to x that have not been visited
-                 * and queue them up
-                 */
                 for (int i = 0; i < numVertices; i++) {
                     if (adjMatrix[x][i] && !visited[i]) {
                         traversalQueue.enqueue(i);
@@ -218,10 +214,6 @@ public class Graph<T> implements GraphADT<T> {
                 x = traversalStack.peek();
                 found = false;
 
-                /**
-                 * Find a vertex adjacent to x that has not been visited and
-                 * push it on the stack
-                 */
                 for (int i = 0; (i < numVertices) && !found; i++) {
                     if (adjMatrix[x][i] && !visited[i]) {
                         traversalStack.push(i);
@@ -259,10 +251,65 @@ public class Graph<T> implements GraphADT<T> {
             return resultList.iterator();
         }
 
-        Iterator<T> it = iteratorBFS(startIndex);
-        while (it.hasNext()) {
-            if (it.next().equals(targetVertex)) {
-                return iteratorBFS(startIndex); // Simplified for now, ideally would return just the path
+        // BFS with predecessor tracking
+        LinkedQueue<Integer> traversalQueue = new LinkedQueue<>();
+        boolean[] visited = new boolean[numVertices];
+        int[] parent = new int[numVertices];
+
+        // Initialize
+        for (int i = 0; i < numVertices; i++) {
+            visited[i] = false;
+            parent[i] = -1;
+        }
+
+        traversalQueue.enqueue(startIndex);
+        visited[startIndex] = true;
+
+        boolean found = false;
+
+        // BFS to find the target and build parent relationships
+        while (!traversalQueue.isEmpty() && !found) {
+            try {
+                int current = traversalQueue.dequeue();
+
+                if (current == targetIndex) {
+                    found = true;
+                    break;
+                }
+
+                // Explore adjacent vertices
+                for (int i = 0; i < numVertices; i++) {
+                    if (adjMatrix[current][i] && !visited[i]) {
+                        traversalQueue.enqueue(i);
+                        visited[i] = true;
+                        parent[i] = current;
+                    }
+                }
+            } catch (Exception e) {
+                // Error handling
+            }
+        }
+
+        // If target was not found, return empty iterator
+        if (!found) {
+            return resultList.iterator();
+        }
+
+        // Backtrack from target to start using parent array
+        LinkedStack<Integer> pathStack = new LinkedStack<>();
+        int current = targetIndex;
+
+        while (current != -1) {
+            pathStack.push(current);
+            current = parent[current];
+        }
+
+        // Build result list from stack (reversing the path)
+        while (!pathStack.isEmpty()) {
+            try {
+                resultList.add(vertices[pathStack.pop()]);
+            } catch (Exception e) {
+                // Should not happen
             }
         }
 
@@ -341,8 +388,8 @@ public class Graph<T> implements GraphADT<T> {
 
             for (int j = 0; j < numVertices; j++) {
                 if (adjMatrix[i][j]) {
-                    result += "1 "; 
-                }else {
+                    result += "1 ";
+                } else {
                     result += "0 ";
                 }
             }

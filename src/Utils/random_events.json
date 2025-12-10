@@ -10,5 +10,11 @@
     "name": "Redução de velocidade",
     "description": "Força 3 movimentos ao jogador devido à redução de velocidade.",
     "stop-game": false
+  },
+  {
+    "code": "CREEPER",
+    "name": "Explosão surpresa",
+    "description": "Causa uma explosão que remove todos os itens do inventário do jogador.",
+    "stop-game": false
   }
 ]

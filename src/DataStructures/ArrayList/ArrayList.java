@@ -75,6 +75,13 @@ public abstract class ArrayList<T> implements ListADT<T> {
         return result;
     }
 
+    public T get(int index) {
+        if (index < 0 || index >= rear) {
+            throw new IndexOutOfBoundsException();
+        }
+        return list[index];
+    }
+
     @Override
     public T first() throws EmptyCollectionException {
         if (isEmpty()) {

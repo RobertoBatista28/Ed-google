@@ -6,8 +6,8 @@ import DataStructures.Exceptions.NoSuchElementException;
 
 public class LinkedList<T> {
 
-    private Node<T> head;
-    private Node<T> tail;
+    private DoubleNode<T> head;
+    private DoubleNode<T> tail;
     private int size;
 
     public LinkedList() {
@@ -17,11 +17,12 @@ public class LinkedList<T> {
     }
 
     public void add(T element) {
-        Node<T> newNode = new Node<>(element);
+        DoubleNode<T> newNode = new DoubleNode<>(element);
         if (size == 0) {
             head = newNode;
             tail = newNode;
         } else {
+            newNode.setPrevious(this.tail);
             this.tail.setNext(newNode);
             this.tail = newNode;
         }
@@ -29,11 +30,12 @@ public class LinkedList<T> {
     }
 
     // Method from PL2 structure
-    public void add(Node<T> newNode) {
+    public void add(DoubleNode<T> newNode) {
         if (size == 0) {
             head = newNode;
             tail = newNode;
         } else {
+            newNode.setPrevious(this.tail);
             this.tail.setNext(newNode);
             this.tail = newNode;
         }
@@ -45,6 +47,9 @@ public class LinkedList<T> {
             throw new EmptyCollectionException("List is empty");
         }
         this.head = this.head.getNext();
+        if (this.head != null) {
+            this.head.setPrevious(null);
+        }
         size--;
         if (size == 0) {
             tail = null;
@@ -60,11 +65,7 @@ public class LinkedList<T> {
             head = null;
             tail = null;
         } else {
-            Node<T> current = this.head;
-            while (current.getNext() != tail) {
-                current = current.getNext();
-            }
-            this.tail = current;
+            this.tail = this.tail.getPrevious();
             this.tail.setNext(null);
         }
         size--;
@@ -74,7 +75,7 @@ public class LinkedList<T> {
         if (index < 0 || index >= size) {
             throw new IndexOutOfBoundsException();
         }
-        Node<T> current = head;
+        DoubleNode<T> current = head;
         for (int i = 0; i < index; i++) {
             current = current.getNext();
         }
@@ -91,7 +92,7 @@ public class LinkedList<T> {
 
     public Iterator<T> iterator() {
         return new Iterator<T>() {
-            private Node<T> current = head;
+            private DoubleNode<T> current = head;
 
             @Override
             public boolean hasNext() {
@@ -113,7 +114,7 @@ public class LinkedList<T> {
     @Override
     public String toString() {
         String str = "";
-        Node<T> current = head;
+        DoubleNode<T> current = head;
 
         for (int i = 0; i < size; i++) {
             str += current.getData().toString() + "\n";

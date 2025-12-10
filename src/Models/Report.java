@@ -9,11 +9,6 @@ import java.io.BufferedReader;
 import java.io.FileReader;
 import java.io.IOException;
 
-/**
- * Classe utilitária responsável por carregar e processar o ficheiro de
- * relatório (JSON). Separa a lógica de leitura de dados da lógica de interface
- * gráfica.
- */
 public class Report {
 
     /**

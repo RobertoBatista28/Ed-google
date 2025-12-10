@@ -30,7 +30,7 @@ public class StatsPanel extends JPanel {
     public StatsPanel() {
         this.scale = (double) GameConfig.ROOM_SIZE / 60;
 
-        int hGap = (int) (40 * scale);
+        int hGap = (int) (20 * scale);
         setLayout(new FlowLayout(FlowLayout.CENTER, hGap, 5));
         setBackground(Color.decode(GameConfig.STATS_PANEL_BACKGROUND_COLOR));
         setBorder(BorderFactory.createMatteBorder(0, 0, 2, 0, Color.GRAY));
@@ -82,7 +82,7 @@ public class StatsPanel extends JPanel {
         removeAll();
 
         // Ensure layout gap is correct
-        int hGap = (int) (40 * scale);
+        int hGap = (int) (20 * scale);
         ((FlowLayout) getLayout()).setHgap(hGap);
 
         Iterator<Player> it = players.iterator();
@@ -95,23 +95,13 @@ public class StatsPanel extends JPanel {
             if (p.equals(currentPlayer)) {
                 pPanel.setBorder(BorderFactory.createCompoundBorder(
                         BorderFactory.createLineBorder(p.getColor(), 3),
-                        BorderFactory.createEmptyBorder((int) (5 * scale), (int) (10 * scale), (int) (5 * scale), (int) (10 * scale))
+                        BorderFactory.createEmptyBorder((int) (5 * scale), (int) (5 * scale), (int) (5 * scale), (int) (5 * scale))
                 ));
                 pPanel.setBackground(new Color(60, 60, 60));
                 pPanel.setOpaque(true);
             } else {
-                pPanel.setBorder(BorderFactory.createEmptyBorder((int) (8 * scale), (int) (13 * scale), (int) (8 * scale), (int) (13 * scale)));
+                pPanel.setBorder(BorderFactory.createEmptyBorder((int) (8 * scale), (int) (8 * scale), (int) (8 * scale), (int) (8 * scale)));
             }
-
-            // Left Side: Reserved Inventory Space
-            int invSize = (int) (40 * scale);
-            JPanel leftInventoryPanel = new JPanel();
-            leftInventoryPanel.setLayout(new BoxLayout(leftInventoryPanel, BoxLayout.Y_AXIS));
-            leftInventoryPanel.setOpaque(false);
-            leftInventoryPanel.setPreferredSize(new Dimension(invSize, invSize));
-            leftInventoryPanel.setMaximumSize(new Dimension(invSize, invSize));
-            pPanel.add(leftInventoryPanel);
-            pPanel.add(Box.createHorizontalStrut((int) (10 * scale)));
 
             // Center: Stats
             JPanel statsPanel = new JPanel();
@@ -127,42 +117,27 @@ public class StatsPanel extends JPanel {
                 JLabel iconLbl = new JLabel(new ImageIcon(scaledIcon));
                 iconLbl.setAlignmentX(Component.CENTER_ALIGNMENT);
                 statsPanel.add(iconLbl);
-                statsPanel.add(Box.createVerticalStrut((int) (2 * scale)));
+                statsPanel.add(Box.createVerticalStrut((int) (10 * scale)));
             }
 
             JLabel nameLbl = new JLabel(p.getName());
             nameLbl.setForeground(p.getColor());
-            nameLbl.setFont(new Font("Arial", Font.BOLD, Math.max(10, (int) (16 * scale))));
+            nameLbl.setFont(new Font("Arial", Font.BOLD, Math.max(12, (int) (18 * scale))));
             nameLbl.setAlignmentX(Component.CENTER_ALIGNMENT);
 
             JLabel movesLbl = new JLabel("Movimentos: " + p.getMoves());
             movesLbl.setForeground(Color.WHITE);
-            movesLbl.setFont(new Font("Arial", Font.PLAIN, Math.max(9, (int) (14 * scale))));
+            movesLbl.setFont(new Font("Arial", Font.PLAIN, Math.max(11, (int) (16 * scale))));
             movesLbl.setAlignmentX(Component.CENTER_ALIGNMENT);
-
-            JLabel totalLbl = new JLabel("Total: " + p.getTotalMoves());
-            totalLbl.setForeground(Color.LIGHT_GRAY);
-            totalLbl.setFont(new Font("Arial", Font.PLAIN, Math.max(8, (int) (12 * scale))));
-            totalLbl.setAlignmentX(Component.CENTER_ALIGNMENT);
 
             statsPanel.add(nameLbl);
             statsPanel.add(Box.createVerticalStrut((int) (2 * scale)));
             statsPanel.add(movesLbl);
-            statsPanel.add(Box.createVerticalStrut((int) (2 * scale)));
-            statsPanel.add(totalLbl);
 
-            pPanel.add(statsPanel);
-            pPanel.add(Box.createHorizontalStrut((int) (10 * scale)));
-
-            // Right Side: Inventory
-            int invWidth = (int) (60 * scale);
-            int invHeight = (int) (80 * scale);
-            JPanel inventoryPanel = new JPanel();
-            inventoryPanel.setLayout(new BoxLayout(inventoryPanel, BoxLayout.Y_AXIS));
+            // Inventory (Horizontal below moves)
+            JPanel inventoryPanel = new JPanel(new FlowLayout(FlowLayout.CENTER, (int)(5 * scale), 0));
             inventoryPanel.setOpaque(false);
-            inventoryPanel.setAlignmentY(Component.CENTER_ALIGNMENT);
-            inventoryPanel.setPreferredSize(new Dimension(invWidth, invHeight));
-            inventoryPanel.setMaximumSize(new Dimension(invWidth, invHeight));
+            inventoryPanel.setAlignmentX(Component.CENTER_ALIGNMENT);
 
             Iterator<Models.Item> invIt = p.getInventory().iterator();
             int slot = 1;
@@ -170,47 +145,57 @@ public class StatsPanel extends JPanel {
                 Models.Item item = invIt.next();
                 JPanel itemPanel = new JPanel(new FlowLayout(FlowLayout.LEFT, 0, 0));
                 itemPanel.setOpaque(false);
-                itemPanel.setAlignmentX(Component.LEFT_ALIGNMENT);
 
                 // Slot number
                 JLabel slotLbl = new JLabel(slot + ": ");
                 slotLbl.setForeground(Color.LIGHT_GRAY);
-                slotLbl.setFont(new Font("Arial", Font.PLAIN, Math.max(8, (int) (12 * scale))));
+                slotLbl.setFont(new Font("Arial", Font.PLAIN, Math.max(10, (int) (14 * scale))));
                 itemPanel.add(slotLbl);
 
-                if (item.getName().equals("Pickaxe")) {
-                    if (iconPickaxe != null) {
-                        int pickaxeSize = (int) (20 * scale);
-                        Image scaledPickaxe = iconPickaxe.getScaledInstance(pickaxeSize, pickaxeSize, Image.SCALE_SMOOTH);
-                        JLabel pickaxeIconLbl = new JLabel(new ImageIcon(scaledPickaxe));
-                        itemPanel.add(pickaxeIconLbl);
-                    } else {
-                        JLabel itemNameLbl = new JLabel("Pickaxe");
-                        itemNameLbl.setForeground(Color.CYAN);
+                switch (item.getName()) {
+                    case "Pickaxe" -> {
+                        if (iconPickaxe != null) {
+                            int pickaxeSize = (int) (20 * scale);
+                            Image scaledPickaxe = iconPickaxe.getScaledInstance(pickaxeSize, pickaxeSize, Image.SCALE_SMOOTH);
+                            JLabel pickaxeIconLbl = new JLabel(new ImageIcon(scaledPickaxe));
+                            itemPanel.add(pickaxeIconLbl);
+                        } else {
+                            JLabel itemNameLbl = new JLabel("Pickaxe");
+                            itemNameLbl.setForeground(Color.CYAN);
+                            itemPanel.add(itemNameLbl);
+                        }
+                    }
+                    case "Ender Pearl" -> {
+                        if (iconEnderPearl != null) {
+                            int pearlSize = (int) (20 * scale);
+                            Image scaledPearl = iconEnderPearl.getScaledInstance(pearlSize, pearlSize, Image.SCALE_SMOOTH);
+                            JLabel pearlIconLbl = new JLabel(new ImageIcon(scaledPearl));
+                            itemPanel.add(pearlIconLbl);
+                        } else {
+                            JLabel itemNameLbl = new JLabel("Ender Pearl");
+                            itemNameLbl.setForeground(Color.MAGENTA);
+                            itemPanel.add(itemNameLbl);
+                        }
+                    }
+                    default -> {
+                        JLabel itemNameLbl = new JLabel(item.getName());
+                        itemNameLbl.setForeground(Color.WHITE);
                         itemPanel.add(itemNameLbl);
                     }
-                } else if (item.getName().equals("Ender Pearl")) {
-                    if (iconEnderPearl != null) {
-                        int pearlSize = (int) (20 * scale);
-                        Image scaledPearl = iconEnderPearl.getScaledInstance(pearlSize, pearlSize, Image.SCALE_SMOOTH);
-                        JLabel pearlIconLbl = new JLabel(new ImageIcon(scaledPearl));
-                        itemPanel.add(pearlIconLbl);
-                    } else {
-                        JLabel itemNameLbl = new JLabel("Ender Pearl");
-                        itemNameLbl.setForeground(Color.MAGENTA);
-                        itemPanel.add(itemNameLbl);
-                    }
-                } else {
-                    JLabel itemNameLbl = new JLabel(item.getName());
-                    itemNameLbl.setForeground(Color.WHITE);
-                    itemPanel.add(itemNameLbl);
                 }
 
                 inventoryPanel.add(itemPanel);
                 slot++;
             }
 
-            pPanel.add(inventoryPanel);
+                // Espaço reservado para inventário horizontal
+                int minInventoryHeight = (int) (30 * scale);
+                inventoryPanel.setPreferredSize(new Dimension((int)(200 * scale), minInventoryHeight));
+                inventoryPanel.setMinimumSize(new Dimension((int)(200 * scale), minInventoryHeight));
+                statsPanel.add(Box.createVerticalStrut((int) (5 * scale)));
+                statsPanel.add(inventoryPanel);
+
+            pPanel.add(statsPanel);
 
             add(pPanel);
         }

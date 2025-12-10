@@ -5,14 +5,23 @@ import DataStructures.Iterator;
 
 public class Lever {
 
+    // ----------------------------------------------------------------
+    // Fields
+    // ----------------------------------------------------------------
     private ArrayUnorderedList<Connection> targets;
     private boolean active;
 
+    // ----------------------------------------------------------------
+    // Constructor
+    // ----------------------------------------------------------------
     public Lever() {
         this.targets = new ArrayUnorderedList<>();
         this.active = false;
     }
 
+    // ----------------------------------------------------------------
+    // Methods
+    // ----------------------------------------------------------------
     public void addTarget(Connection c) {
         targets.add(c);
         c.setLocked(!active);

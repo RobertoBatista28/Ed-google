@@ -1,7 +1,10 @@
 package GameEngine;
 
 import DataStructures.ArrayList.ArrayUnorderedList;
+import DataStructures.Exceptions.EmptyCollectionException;
 import DataStructures.Iterator;
+import DataStructures.Queue.LinkedQueue;
+import DataStructures.Queue.QueueADT;
 import Models.Connection;
 import Models.Player;
 import Models.Room;
@@ -12,9 +15,9 @@ public class GameManager {
 
     private final GameMap gameMap;
     private final ArrayUnorderedList<Player> players;
+    private final QueueADT<Player> turnQueue;
     private final QuestionManager questionManager;
     private final RandomEventManager randomEventManager;
-    private int currentPlayerIndex;
     private GameEventListener gameEventListener;
 
     private boolean isEnderPearlSelectionMode = false;
@@ -26,7 +29,7 @@ public class GameManager {
     public GameManager(GameMap gameMap) {
         this.gameMap = gameMap;
         this.players = new ArrayUnorderedList<>();
-        this.currentPlayerIndex = 0;
+        this.turnQueue = new LinkedQueue<>();
         this.questionManager = new QuestionManager(GameConfig.QUESTIONS_PATH);
         this.randomEventManager = new RandomEventManager();
     }
@@ -72,6 +75,7 @@ public class GameManager {
 
         Player newPlayer = new Player(name, startRoom, color, isBot, characterType);
         players.add(newPlayer);
+        turnQueue.enqueue(newPlayer);
     }
 
     // ----------------------------------------------------------------
@@ -401,7 +405,7 @@ public class GameManager {
             handleEnderPearlPickup(currentPlayer, targetRoom);
 
             // Random Event Check
-            Models.Event eventDef = randomEventManager.checkForRandomEvent(gameMap, targetRoom);
+            Models.Event eventDef = randomEventManager.checkForRandomEvent(currentPlayer, gameMap, targetRoom);
             if (eventDef != null) {
                 System.out.println("Random Event Triggered: " + eventDef.getName());
                 if (gameEventListener != null) {
@@ -423,7 +427,7 @@ public class GameManager {
             }
 
             if (currentPlayer.getMoves() <= 0) {
-                final int delay = movingFromSoulSand ? (int) (GameConfig.MOVEMENT_DURATION * 10.0) : GameConfig.MOVEMENT_DURATION;
+                final int delay = movingFromSoulSand ? (int) (GameConfig.MOVEMENT_DURATION * 6.0) : GameConfig.MOVEMENT_DURATION;
 
                 new Thread(() -> {
                     try {
@@ -603,12 +607,24 @@ public class GameManager {
         }
     }
 
+    private int getCurrentPlayerIndex() {
+        Player current = getCurrentPlayer();
+        if (current == null) return -1;
+        for (int i = 0; i < players.size(); i++) {
+             if (players.get(i) == current) {
+                 return i;
+             }
+        }
+        return -1;
+    }
+
     public void cycleEnderPearlTarget(int direction) {
         if (!isEnderPearlSelectionMode) {
             return;
         }
 
         int count = players.size();
+        int currentPlayerIndex = getCurrentPlayerIndex();
         int startIdx = (selectedTargetIndex == -1) ? currentPlayerIndex : selectedTargetIndex;
         int current = startIdx;
 
@@ -788,18 +804,26 @@ public class GameManager {
 
     // Get Current Player Helper
     public Player getCurrentPlayer() {
-        if (players.isEmpty()) {
+        if (turnQueue.isEmpty()) {
             return null;
         }
-
-        return players.get(currentPlayerIndex);
+        try {
+            return turnQueue.first();
+        } catch (EmptyCollectionException e) {
+            return null;
+        }
     }
 
     public void nextTurn() {
-        if (players.isEmpty()) {
+        if (turnQueue.isEmpty()) {
             return;
         }
-        currentPlayerIndex = (currentPlayerIndex + 1) % players.size();
+        try {
+            Player current = turnQueue.dequeue();
+            turnQueue.enqueue(current);
+        } catch (EmptyCollectionException e) {
+            System.err.println("Error rotating turn queue: " + e.getMessage());
+        }
         rollDiceForCurrentPlayer();
     }
 

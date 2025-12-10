@@ -2,18 +2,27 @@ package Models;
 
 public class Connection {
 
+    // ----------------------------------------------------------------
+    // Fields
+    // ----------------------------------------------------------------
     private Room from;
     private Room to;
     private boolean isLocked;
-    private int keyId;
+    private Item key;
 
-    public Connection(Room from, Room to, boolean isLocked, int keyId) {
+    // ----------------------------------------------------------------
+    // Constructor
+    // ----------------------------------------------------------------
+    public Connection(Room from, Room to, boolean isLocked, Item key) {
         this.from = from;
         this.to = to;
         this.isLocked = isLocked;
-        this.keyId = keyId;
+        this.key = key;
     }
 
+    // ----------------------------------------------------------------
+    // Getters & Setters
+    // ----------------------------------------------------------------
     public Room getFrom() {
         return from;
     }
@@ -30,7 +39,7 @@ public class Connection {
         isLocked = locked;
     }
 
-    public int getKeyId() {
-        return keyId;
+    public Item getKey() {
+        return key;
     }
 }

@@ -1,9 +1,10 @@
 package GameEngine;
 
 import DataStructures.ArrayList.ArrayUnorderedList;
-import DataStructures.Iterator;
+import DataStructures.Exceptions.EmptyCollectionException;
 import Models.Event;
 import Models.Lever;
+import Models.Player;
 import Models.Random;
 import Models.Room;
 import Utils.GameConfig;
@@ -50,7 +51,7 @@ public class RandomEventManager {
             }
 
         } catch (IOException e) {
-            e.printStackTrace();
+            System.err.println("Error loading random events: " + e.getMessage());
         }
     }
 
@@ -104,50 +105,34 @@ public class RandomEventManager {
             startIndex++;
         }
 
-        if (json.startsWith("true", startIndex)) {
-            return true;
-        }
-        return false;
+        return json.startsWith("true", startIndex);
     }
 
-    public Event checkForRandomEvent(GameMap gameMap, Room currentRoom) {
+    public Event checkForRandomEvent(Player player, GameMap gameMap, Room currentRoom) {
         if (random.nextDouble() < GameConfig.RANDOM_EVENT_PROBABILITY) {
             if (events.isEmpty()) {
                 return null;
             }
 
             int randomIndex = random.nextInt(events.size());
-            Iterator<Event> it = events.iterator();
-            Event def = null;
-            int currentIndex = 0;
-
-            while (it.hasNext()) {
-                def = it.next();
-                if (currentIndex == randomIndex) {
-                    break;
-                }
-                currentIndex++;
-            }
+            Event def = events.get(randomIndex);
 
             if (def != null) {
-                if (def.getCode().equals("REDSTONE_BLOCK")) {
-                    triggerRedstoneBlockEvent(gameMap, currentRoom);
-                    return def;
-                } else if (def.getCode().equals("SOUL_SAND")) {
-                    triggerSoulSandEvent(gameMap, currentRoom);
-                    return def;
-                }
-            }
-        }
-        return null;
-    }
-
-    private Event getEventDefinition(String code) {
-        Iterator<Event> it = events.iterator();
-        while (it.hasNext()) {
-            Event def = it.next();
-            if (def.getCode().equals(code)) {
-                return def;
+                return switch (def.getCode()) {
+                    case "REDSTONE_BLOCK" -> {
+                        triggerRedstoneBlockEvent(gameMap, currentRoom);
+                        yield def;
+                    }
+                    case "SOUL_SAND" -> {
+                        triggerSoulSandEvent(gameMap, currentRoom);
+                        yield def;
+                    }
+                    case "CREEPER" -> {
+                        triggerCreeperEvent(player, currentRoom);
+                        yield def;
+                    }
+                    default -> def;
+                };
             }
         }
         return null;
@@ -173,8 +158,7 @@ public class RandomEventManager {
                 }
             }
         }
-
-        return "REDSTONE_BLOCK_TEXTURE";
+        return "REDSTONE_BLOCK";
     }
 
     // ----------------------------------------------------------------
@@ -186,5 +170,28 @@ public class RandomEventManager {
         currentRoom.setCustomFloorImage(soulSandTexture);
         currentRoom.setSoulSand(true);
         return "SOUL_SAND";
+    }
+
+    // ----------------------------------------------------------------
+    // Event: Creeper
+    // Power: Removes all items from player inventory.
+    private void triggerCreeperEvent(Player player, Room currentRoom) {
+        // Remove all items
+        while (!player.getInventory().isEmpty()) {
+            try {
+                player.getInventory().removeLast();
+            } catch (EmptyCollectionException e) {
+                break;
+            }
+        }
+
+        // Change floor texture
+        java.awt.image.BufferedImage cobblestone = Utils.ImageLoader.getImage("src/Resources/Assets/Textures/cobblestone.jpg");
+        if (cobblestone != null) {
+            currentRoom.setCustomFloorImage(cobblestone);
+        }
+
+        // Play sound
+        Utils.SoundPlayer.playExplosion();
     }
 }

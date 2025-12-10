@@ -34,6 +34,10 @@ public class SoundPlayer {
         playSound("src/Resources/Assets/Sound/youtube_question.wav");
     }
 
+    public static void playExplosion() {
+        playSound("src/Resources/Assets/Sound/minecraft_explosion.wav");
+    }
+
     public static void playSound(String filePath) {
         try {
             File soundFile = new File(filePath);

@@ -1,7 +1,6 @@
 package GameEngine;
 
 import DataStructures.ArrayList.ArrayUnorderedList;
-import DataStructures.Graph.Graph;
 import DataStructures.Stack.LinkedStack;
 import Models.Connection;
 import Models.Lever;
@@ -11,7 +10,9 @@ import Utils.GameConfig;
 
 public class GameMap {
 
-    private Graph<Room> mapGraph;
+    // ----------------------------------------------------------------
+    // Fields
+    // ----------------------------------------------------------------
     private Room[][] grid;
     private int width;
     private int height;
@@ -25,7 +26,6 @@ public class GameMap {
         this.width = width;
         this.height = height;
         this.mapName = "Generated";
-        this.mapGraph = new Graph<>();
         this.grid = new Room[width][height];
         if (generate) {
             generateMap();
@@ -187,7 +187,6 @@ public class GameMap {
 
                 Room room = new Room(x + "," + y, x, y, isEntrance, isCenter);
                 grid[x][y] = room;
-                mapGraph.addVertex(room);
             }
         }
 
@@ -212,9 +211,8 @@ public class GameMap {
                     int idx = rand.nextInt(neighbors.size());
                     Room next = neighbors.get(idx);
 
-                    mapGraph.addEdge(current, next);
-                    current.addConnection(new Connection(current, next, false, 0));
-                    next.addConnection(new Connection(next, current, false, 0));
+                    current.addConnection(new Connection(current, next, false, null));
+                    next.addConnection(new Connection(next, current, false, null));
 
                     visited[next.getX()][next.getY()] = true;
                     stack.push(next);
@@ -233,17 +231,15 @@ public class GameMap {
                 if (x < width / 2 + 1) {
                     Room right = grid[x + 1][y];
                     if (!isConnected(r, right)) {
-                        mapGraph.addEdge(r, right);
-                        r.addConnection(new Connection(r, right, false, 0));
-                        right.addConnection(new Connection(right, r, false, 0));
+                        r.addConnection(new Connection(r, right, false, null));
+                        right.addConnection(new Connection(right, r, false, null));
                     }
                 }
                 if (y < height / 2 + 1) {
                     Room down = grid[x][y + 1];
                     if (!isConnected(r, down)) {
-                        mapGraph.addEdge(r, down);
-                        r.addConnection(new Connection(r, down, false, 0));
-                        down.addConnection(new Connection(down, r, false, 0));
+                        r.addConnection(new Connection(r, down, false, null));
+                        down.addConnection(new Connection(down, r, false, null));
                     }
                 }
             }
@@ -258,9 +254,8 @@ public class GameMap {
                     Room right = grid[x + 1][y];
                     if (!isConnected(r, right)) {
                         if (rand.nextDouble() < 0.1 && !createsSquare(r, right)) {
-                            mapGraph.addEdge(r, right);
-                            r.addConnection(new Connection(r, right, false, 0));
-                            right.addConnection(new Connection(right, r, false, 0));
+                            r.addConnection(new Connection(r, right, false, null));
+                            right.addConnection(new Connection(right, r, false, null));
                         }
                     }
                 }
@@ -269,9 +264,8 @@ public class GameMap {
                     Room down = grid[x][y + 1];
                     if (!isConnected(r, down)) {
                         if (rand.nextDouble() < 0.1 && !createsSquare(r, down)) {
-                            mapGraph.addEdge(r, down);
-                            r.addConnection(new Connection(r, down, false, 0));
-                            down.addConnection(new Connection(down, r, false, 0));
+                            r.addConnection(new Connection(r, down, false, null));
+                            down.addConnection(new Connection(down, r, false, null));
                         }
                     }
                 }
@@ -345,10 +339,6 @@ public class GameMap {
             }
         }
         return false;
-    }
-
-    public Graph<Room> getGraph() {
-        return mapGraph;
     }
 
     public Room getRoom(int x, int y) {
@@ -442,7 +432,6 @@ public class GameMap {
     public void setRoom(int x, int y, Room room) {
         if (x >= 0 && x < width && y >= 0 && y < height) {
             grid[x][y] = room;
-            mapGraph.addVertex(room);
         }
     }
 
@@ -450,8 +439,7 @@ public class GameMap {
         Room from = grid[fromX][fromY];
         Room to = grid[toX][toY];
         if (from != null && to != null) {
-            mapGraph.addEdge(from, to);
-            from.addConnection(new Connection(from, to, isLocked, 0));
+            from.addConnection(new Connection(from, to, isLocked, null));
         }
     }
 
@@ -481,9 +469,8 @@ public class GameMap {
 
             // Check if connection already exists
             if (!isConnected(room, targetRoom)) {
-                mapGraph.addEdge(room, targetRoom);
-                room.addConnection(new Connection(room, targetRoom, false, 0));
-                targetRoom.addConnection(new Connection(targetRoom, room, false, 0));
+                room.addConnection(new Connection(room, targetRoom, false, null));
+                targetRoom.addConnection(new Connection(targetRoom, room, false, null));
             }
         }
     }

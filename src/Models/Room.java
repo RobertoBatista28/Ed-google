@@ -4,6 +4,9 @@ import DataStructures.ArrayList.ArrayUnorderedList;
 
 public class Room {
 
+    // ----------------------------------------------------------------
+    // Fields
+    // ----------------------------------------------------------------
     private String name;
     private int x;
     private int y;
@@ -18,6 +21,9 @@ public class Room {
     private java.awt.Color customFloorColor;
     private java.awt.image.BufferedImage customFloorImage;
 
+    // ----------------------------------------------------------------
+    // Constructor
+    // ----------------------------------------------------------------
     public Room(String name, int x, int y, boolean isEntrance, boolean isCenter) {
         this.name = name;
         this.x = x;
@@ -34,6 +40,9 @@ public class Room {
         this.customFloorImage = null;
     }
 
+    // ----------------------------------------------------------------
+    // Getters & Setters
+    // ----------------------------------------------------------------
     public void setSoulSand(boolean isSoulSand) {
         this.isSoulSand = isSoulSand;
     }

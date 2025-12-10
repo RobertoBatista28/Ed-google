@@ -28,12 +28,12 @@ public class GameConfig {
     public static final int PATH_LINE_THICKNESS = 5;
     public static final String BREAKABLE_WALL_COLOR_HEX = "#FF0000";
     public static final String PLAYER_OVERLAY_COLOR_HEX = "#FFFFFF";
-    public static final double BRAIDING_RATE = 0.12;
-    public static final double RANDOM_EVENT_PROBABILITY = 0.02;
+    public static final double BRAIDING_RATE = 0.11;
+    public static final double RANDOM_EVENT_PROBABILITY = 0.03;
 
-    public static final int LEVERS_COUNT = 16;
-    public static final int PICKAXES_COUNT = 8;
-    public static final int ENDERPEARLS_COUNT = 4;
+    public static final int LEVERS_COUNT = 20;
+    public static final int PICKAXES_COUNT = 12;
+    public static final int ENDERPEARLS_COUNT = 8;
     public static final int QUESTIONS_COUNT = 24;
 
     public static final double LEVER_SIZE_SCALE = 0.8;
@@ -49,13 +49,13 @@ public class GameConfig {
 
     // Configurações da Janela de Jogo
     public static final int GAME_WINDOW_WIDTH = ROOM_SIZE * MAP_WIDTH + 70;
-    public static final int GAME_WINDOW_HEIGHT = ROOM_SIZE * MAP_HEIGHT + 200;
+    public static final int GAME_WINDOW_HEIGHT = ROOM_SIZE * MAP_HEIGHT + 240;
 
     // Configurações da Janela Principal
     public static final int MAIN_WINDOW_WIDTH = 1100;
     public static final int MAIN_WINDOW_HEIGHT = 700;
-    public static final String MAIN_WINDOW_TITLE = "LABIRINTO DA GLÓRIA";
-    public static final String GAME_VERSION = "v3.5.1";
+    public static final String MAIN_WINDOW_TITLE = "MAZECRAFT";
+    public static final String GAME_VERSION = "v3.7.2";
     public static final String MAIN_WINDOW_BACKGROUND_COLOR = "#000000";
     public static final String STATS_PANEL_BACKGROUND_COLOR = "#323232";
     public static final String BUTTONS_BACKGROUND_COLOR = "#A0A0A0";
@@ -134,7 +134,7 @@ public class GameConfig {
 
     // Configurações da Janela de Resultados
     public static final int REPORT_WINDOW_WIDTH = 750;
-    public static final int REPORT_WINDOW_HEIGHT = 950;
+    public static final int REPORT_WINDOW_HEIGHT = 1000;
     public static final String REPORT_ACCENT_COLOR_HEX = "#DC3232";
     public static final String REPORT_TEXT_PRIMARY_COLOR_HEX = "#F0F0F5";
     public static final String REPORT_TEXT_SECONDARY_COLOR_HEX = "#B4B4BE";

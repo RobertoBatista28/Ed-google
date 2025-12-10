@@ -2,11 +2,17 @@ package Models;
 
 public class Event {
 
+    // ----------------------------------------------------------------
+    // Fields
+    // ----------------------------------------------------------------
     private final String code;
     private final String name;
     private final String description;
     private final boolean stopGame;
 
+    // ----------------------------------------------------------------
+    // Constructor
+    // ----------------------------------------------------------------
     public Event(String code, String name, String description, boolean stopGame) {
         this.code = code;
         this.name = name;
@@ -14,6 +20,9 @@ public class Event {
         this.stopGame = stopGame;
     }
 
+    // ----------------------------------------------------------------
+    // Getters
+    // ----------------------------------------------------------------
     public String getCode() {
         return code;
     }

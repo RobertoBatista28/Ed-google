@@ -30,7 +30,7 @@ public class GameMapLoader {
         File file = new File(GameConfig.MAP_LOADER_PATH + File.separator + mapName);
         if (!file.exists()) {
             System.err.println("Map file not found: " + mapName);
-            return new GameMap(21, 21, true); // Fallback
+            return new GameMap(21, 21, true);
         }
         GameMap map = loadMapFromFile(file);
         map.setMapName(mapName);
@@ -154,11 +154,12 @@ public class GameMapLoader {
 
         int end = start;
         switch (json.charAt(start)) {
-            case '"':
+            case '"' -> {
                 start++;
                 end = json.indexOf("\"", start);
                 return json.substring(start, end);
-            case '[':
+            }
+            case '[' -> {
                 int bracketCount = 1;
                 end = start + 1;
                 while (bracketCount > 0 && end < json.length()) {
@@ -171,11 +172,13 @@ public class GameMapLoader {
                     end++;
                 }
                 return json.substring(start, end);
-            default:
+            }
+            default -> {
                 while (end < json.length() && json.charAt(end) != ',' && json.charAt(end) != '}' && json.charAt(end) != ']') {
                     end++;
                 }
                 return json.substring(start, end).trim();
+            }
         }
     }
 
