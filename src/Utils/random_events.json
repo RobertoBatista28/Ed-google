@@ -1,0 +1,14 @@
+[
+  {
+    "code": "REDSTONE_BLOCK",
+    "name": "Inversão de sinal",
+    "description": "Inverte o estado de todas as alavancas no tabuleiro.",
+    "stop-game": true
+  },
+  {
+    "code": "SOUL_SAND",
+    "name": "Redução de velocidade",
+    "description": "Força 3 movimentos ao jogador devido à redução de velocidade.",
+    "stop-game": false
+  }
+]

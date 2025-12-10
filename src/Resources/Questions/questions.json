@@ -1,0 +1,97 @@
+[
+  {
+    "question": "Sou a vila construída em colinas e cercada por um grande rio azul nos mapas Vanilla. Que bioma sou?",
+    "options": ["Planícies", "Montanhas", "Savana", "Taiga"],
+    "correct": "Montanhas"
+  },
+  {
+    "question": "Quando olho para cima num dia claro no Overworld, que cor domina o céu cúbico?",
+    "options": ["Verde", "Vermelho", "Azul", "Roxo"],
+    "correct": "Azul"
+  },
+  {
+    "question": "Criador lendário que nos trouxe Creepers por acidente. Quem foi?",
+    "options": ["Jeb", "Notch", "Dinnerbone", "Searge"],
+    "correct": "Notch"
+  },
+  {
+    "question": "Sou o maior e mais temível boss do jogo original, encontrado no Fim. Quem sou?",
+    "options": ["Wither", "Ender Dragon", "Warden", "Elder Guardian"],
+    "correct": "Ender Dragon"
+  },
+  {
+    "question": "Lar dos desertos, pirâmides e aldeões com roupas claras. Que bioma é?",
+    "options": ["Savanna", "Desert", "Mesa", "Plains"],
+    "correct": "Desert"
+  },
+  {
+    "question": "Sou essencial para te manter vivo debaixo de água e simbolizado pelo número ‘O2’ no HUD das poções. Que efeito sou?",
+    "options": ["Força", "Respiração Aquática", "Velocidade", "Visão Noturna"],
+    "correct": "Respiração Aquática"
+  },
+  {
+    "question": "Artista dos blocos, autor de uma das skins mais icónicas e do clássico sorriso quadrado. Quem é?",
+    "options": ["Steve", "Alex", "Herobrine", "Villager #12"],
+    "correct": "Steve"
+  },
+  {
+    "question": "Saltitante e hostil à noite, deixo bolas de slime enormes atrás de mim. Quem sou?",
+    "options": ["Slime", "Creeper", "Enderman", "Zombie"],
+    "correct": "Slime"
+  },
+  {
+    "question": "Normalmente duro 20 minutos, mas quando adicionado um disco solar, fico maior. Quantos minutos possui um ciclo completo de dia e noite?",
+    "options": ["20", "10", "30", "24"],
+    "correct": "20"
+  },
+  {
+    "question": "Tenho olhos mas não vejo; sigo caminhos inesperados e deslizo pelo chão. Quem sou?",
+    "options": ["Ender Pearl", "Slimeball", "Livro encantado", "Barril"],
+    "correct": "Ender Pearl"
+  },
+  {
+    "question": "Quanto mais me partes, mais ganho espaço. O que sou?",
+    "options": ["Bloco de pedra", "Buraco", "Cavidade", "Areia"],
+    "correct": "Buraco"
+  },
+  {
+    "question": "Quanto mais me usas para te secar após nadar, mais molhada fico. Quem sou?",
+    "options": ["Esponja", "Lã", "Balde", "Tocha"],
+    "correct": "Esponja"
+  },
+  {
+    "question": "Não sou vivo, mas cresço; não tenho pulmões, mas preciso de ar; água é a minha inimiga. Quem sou?",
+    "options": ["Fogo", "Slime", "Cacto", "Farinha de Osso"],
+    "correct": "Fogo"
+  },
+  {
+    "question": "No jogo, avanço sempre para a frente e nunca volto atrás. Marco tudo o que já criaste e destruíste. O que sou?",
+    "options": ["Tempo", "Redstone", "Dia-noite", "Chunks"],
+    "correct": "Tempo"
+  },
+  {
+    "question": "Sou maior que qualquer mob, mas não peso nada. Apenas flutuo no céu cúbico. O que sou?",
+    "options": ["A tua imaginação", "Uma nuvem", "Um balão", "O infinito"],
+    "correct": "Uma nuvem"
+  },
+  {
+    "question": "Tenho dentes mas não mordo; tenho língua mas não falo. Sou essencial para a redstone. Quem sou?",
+    "options": ["Alavanca", "Repeater", "Pente", "Comando"],
+    "correct": "Repeater"
+  },
+  {
+    "question": "Sou feito para te ajudar a andar, mas nunca me mexo do chão. O que sou?",
+    "options": ["Tapete", "Bloco de caminho", "Placa de pressão", "Sapato"],
+    "correct": "Tapete"
+  },
+  {
+    "question": "Quanto mais escavas, maior me torno. Quem sou?",
+    "options": ["Buraco", "Pedregulho", "Minério", "Areia"],
+    "correct": "Buraco"
+  },
+  {
+    "question": "Quanto mais partilhas, mais recebes. O que sou?",
+    "options": ["Amor", "Experiência (XP)", "Lápis-Lazúli", "Ouro"],
+    "correct": "Experiência (XP)"
+  }
+]
