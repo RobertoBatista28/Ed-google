@@ -68,7 +68,7 @@ public class HelpPanel extends JPanel {
                 """
                 • Cada jogador joga à vez, lançando os dados para se mover.
                 • O objetivo é chegar à sala central (Tesouro).
-                • Utilize alavancas para abrir/fechar caminhos.
+                • Utilize alavancas para abrir/fechar caminhos pressionando o espaço do teclado.
                 • Colete itens para ganhar vantagens.
                 """
         );

@@ -19,12 +19,15 @@ public class MainWindow extends JFrame implements GameEventListener {
     private MenuPanel menuPanel;
     private SetupPanel setupPanel;
     private HelpPanel helpPanel;
+    private PauseMenuPanel pauseMenuPanel;
     private JPanel gameContainer;
+    private JLayeredPane gameLayeredPane;
     private StatsPanel statsPanel;
     private MapPanel mapPanel;
     private GameManager gameManager;
     private GameMap gameMap;
     private GameController gameController;
+    private boolean isPaused = false;
 
     public MainWindow() {
         setTitle(GameConfig.MAIN_WINDOW_TITLE);
@@ -53,10 +56,19 @@ public class MainWindow extends JFrame implements GameEventListener {
         // Help Panel
         helpPanel = new HelpPanel(e -> showMenu());
 
-        // 3. Game Container (Stats + Map)
+        // 3. Game Container (Stats + Map + Pause Menu Overlay)
         gameContainer = new JPanel(new BorderLayout());
+        
+        // Use JLayeredPane for overlay support
+        gameLayeredPane = new JLayeredPane();
+        gameLayeredPane.setLayout(null);
+        
         statsPanel = new StatsPanel();
         gameContainer.add(statsPanel, BorderLayout.NORTH);
+        gameContainer.add(gameLayeredPane, BorderLayout.CENTER);
+        
+        // Setup layered pane resize handling
+        setupGameLayeredPane();
 
         // Add panels to CardLayout
         mainPanel.add(menuPanel, "MENU");
@@ -119,19 +131,39 @@ public class MainWindow extends JFrame implements GameEventListener {
 
         // Initialize Map Panel
         if (mapPanel != null) {
-            gameContainer.remove(mapPanel);
+            gameLayeredPane.remove(mapPanel);
         }
         mapPanel = new MapPanel(gameManager);
-        gameContainer.add(mapPanel, BorderLayout.CENTER);
+        
+        // Add MapPanel to layered pane
+        mapPanel.setBounds(0, 0, GameConfig.GAME_WINDOW_WIDTH, GameConfig.GAME_WINDOW_HEIGHT - statsPanel.getPreferredSize().height);
+        gameLayeredPane.add(mapPanel, JLayeredPane.DEFAULT_LAYER);
 
-        // Initialize Controller
+        // Initialize Controller with ESC key support
         if (gameController != null) {
             removeKeyListener(gameController);
         }
+        
+        // Remove old key listeners
+        for (java.awt.event.KeyListener kl : getKeyListeners()) {
+            removeKeyListener(kl);
+        }
+        
         gameController = new GameController(gameManager, mapPanel);
         gameController.setStatsPanel(statsPanel);
 
-        addKeyListener(gameController);
+        // Add key listener for ESC and game controls
+        addKeyListener(new java.awt.event.KeyAdapter() {
+            @Override
+            public void keyPressed(java.awt.event.KeyEvent e) {
+                if (e.getKeyCode() == java.awt.event.KeyEvent.VK_ESCAPE) {
+                    MainWindow.this.togglePauseMenu();
+                } else if (!MainWindow.this.isPaused) {
+                    // Only forward keys to game controller if not paused
+                    gameController.keyPressed(e);
+                }
+            }
+        });
 
         // Start the game logic
         gameManager.startGame();
@@ -144,6 +176,91 @@ public class MainWindow extends JFrame implements GameEventListener {
         setLocationRelativeTo(null);
         cardLayout.show(mainPanel, "GAME");
         requestFocusInWindow();
+    }
+
+    private void togglePauseMenu() {
+        if (isPaused) {
+            // Close pause menu
+            if (pauseMenuPanel != null) {
+                gameLayeredPane.remove(pauseMenuPanel);
+                pauseMenuPanel = null;
+            }
+            isPaused = false;
+        } else {
+            // Open pause menu
+            pauseMenuPanel = new PauseMenuPanel(
+                e -> togglePauseMenu(), // Resume
+                e -> showHelpFromGame(), // Help
+                e -> returnToMainMenu()  // Main Menu
+            );
+            
+            // Set bounds to cover entire game area
+            int layerWidth = gameLayeredPane.getWidth();
+            int layerHeight = gameLayeredPane.getHeight();
+            pauseMenuPanel.setBounds(0, 0, layerWidth, layerHeight);
+            
+            gameLayeredPane.add(pauseMenuPanel, JLayeredPane.PALETTE_LAYER);
+            isPaused = true;
+        }
+        
+        gameLayeredPane.revalidate();
+        gameLayeredPane.repaint();
+        requestFocusInWindow();
+    }
+
+    private void showHelpFromGame() {
+        // Create a temporary help dialog
+        JDialog helpDialog = new JDialog(this, "Ajuda e Suporte", true);
+        helpDialog.setSize(GameConfig.MAIN_WINDOW_WIDTH, GameConfig.MAIN_WINDOW_HEIGHT);
+        helpDialog.setLocationRelativeTo(this);
+        
+        HelpPanel tempHelpPanel = new HelpPanel(e -> helpDialog.dispose());
+        helpDialog.add(tempHelpPanel);
+        helpDialog.setVisible(true);
+        
+        requestFocusInWindow();
+    }
+
+    private void returnToMainMenu() {
+        // Clean up game state
+        if (gameController != null) {
+            removeKeyListener(gameController);
+        }
+        
+        if (pauseMenuPanel != null) {
+            gameLayeredPane.remove(pauseMenuPanel);
+            pauseMenuPanel = null;
+        }
+        
+        if (mapPanel != null) {
+            gameLayeredPane.remove(mapPanel);
+            mapPanel = null;
+        }
+        
+        isPaused = false;
+        gameManager = null;
+        gameMap = null;
+        
+        showMenu();
+    }
+
+    // Add component listener to handle resizing
+    private void setupGameLayeredPane() {
+        gameLayeredPane.addComponentListener(new java.awt.event.ComponentAdapter() {
+            @Override
+            public void componentResized(java.awt.event.ComponentEvent e) {
+                int width = gameLayeredPane.getWidth();
+                int height = gameLayeredPane.getHeight();
+                
+                if (mapPanel != null) {
+                    mapPanel.setBounds(0, 0, width, height);
+                }
+                
+                if (pauseMenuPanel != null) {
+                    pauseMenuPanel.setBounds(0, 0, width, height);
+                }
+            }
+        });
     }
 
 

@@ -255,8 +255,8 @@ public class GameManager {
                 }
             }
 
-            // 5. Calculate Path
-            Iterator<Room> pathIt = gameMap.getShortestPathDijkstra(bot.getCurrentRoom(), target);
+            // 5. Calculate Path usando o ADT Graph
+            Iterator<Room> pathIt = gameMap.getShortestPath(bot.getCurrentRoom(), target);
 
             if (pathIt.hasNext()) {
                 pathIt.next();
@@ -755,7 +755,27 @@ public class GameManager {
 
         Room currentRoom = currentPlayer.getCurrentRoom();
         if (currentRoom.hasLever()) {
-            currentRoom.getLever().toggle();
+            Models.Lever lever = currentRoom.getLever();
+            lever.toggle(); // Altera o estado na 'Room/Connection'
+            
+            // --- SINCRONIZAÇÃO OBRIGATÓRIA COM O GRAFO ---
+            Iterator<Connection> targets = lever.getTargets().iterator();
+            while(targets.hasNext()) {
+                Connection c = targets.next();
+                Room from = c.getFrom();
+                Room to = c.getTo();
+                
+                // Atualiza a matriz de adjacência do grafo
+                if (c.isLocked()) {
+                    // Se trancou, removemos a aresta (Bot deixa de ver caminho)
+                    gameMap.getGraph().removeEdge(from, to);
+                } else {
+                    // Se destrancou, adicionamos a aresta (Bot passa a ver caminho)
+                    gameMap.getGraph().addEdge(from, to);
+                }
+            }
+            // ---------------------------------------------
+            
             currentPlayer.incrementLeverInteractions();
             if (currentRoom.getLever().isActive()) {
                 Utils.SoundPlayer.playLeverOn();

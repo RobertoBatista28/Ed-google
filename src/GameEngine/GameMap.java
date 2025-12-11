@@ -1,6 +1,7 @@
 package GameEngine;
 
 import DataStructures.ArrayList.ArrayUnorderedList;
+import DataStructures.Graph.Graph;
 import DataStructures.Stack.LinkedStack;
 import Models.Connection;
 import Models.Lever;
@@ -14,6 +15,7 @@ public class GameMap {
     // Fields
     // ----------------------------------------------------------------
     private Room[][] grid;
+    private Graph<Room> graph;  // ADT Grafo - estrutura principal para navegação
     private int width;
     private int height;
     private String mapName;
@@ -26,6 +28,7 @@ public class GameMap {
         this.width = width;
         this.height = height;
         this.mapName = "Generated";
+        this.graph = new Graph<>();  // Inicializar o grafo
         this.grid = new Room[width][height];
         if (generate) {
             generateMap();
@@ -179,6 +182,7 @@ public class GameMap {
     }
 
     private void generateMap() {
+
         // 1. Create Rooms
         for (int x = 0; x < width; x++) {
             for (int y = 0; y < height; y++) {
@@ -271,6 +275,31 @@ public class GameMap {
                 }
             }
         }
+
+        // 5. Popular o Grafo com todos os vértices (Rooms)
+        for (int x = 0; x < width; x++) {
+            for (int y = 0; y < height; y++) {
+                graph.addVertex(grid[x][y]);
+            }
+        }
+
+        // 6. Popular o Grafo com todas as arestas (Connections)
+        // Usamos as conexões já criadas na Room para popular o grafo
+        for (int x = 0; x < width; x++) {
+            for (int y = 0; y < height; y++) {
+                Room current = grid[x][y];
+                DataStructures.Iterator<Connection> connIt = current.getConnections().iterator();
+                while (connIt.hasNext()) {
+                    Connection conn = connIt.next();
+                    Room neighbor = conn.getTo();
+                    // Adicionar aresta ao grafo (evita duplicação pois addEdge é simétrico)
+                    if (current.getX() < neighbor.getX() || 
+                        (current.getX() == neighbor.getX() && current.getY() < neighbor.getY())) {
+                        graph.addEdge(current, neighbor);
+                    }
+                }
+            }
+        }
     }
 
     private boolean createsSquare(Room r1, Room r2) {
@@ -357,75 +386,21 @@ public class GameMap {
         return entrances;
     }
 
+    /**
+     * Método correto: Delega o cálculo do caminho mais curto para o ADT Graph
+     * Usa BFS implementado no Graph.iteratorShortestPath()
+     */
+    public DataStructures.Iterator<Room> getShortestPath(Room start, Room end) {
+        return graph.iteratorShortestPath(start, end);
+    }
+
+    /**
+     * @deprecated Usar getShortestPath() que delega ao ADT Graph
+     */
+    @Deprecated
     public DataStructures.Iterator<Room> getShortestPathDijkstra(Room start, Room end) {
-        // Dijkstra's Algorithm
-        double[][] dist = new double[width][height];
-        Room[][] prev = new Room[width][height];
-        ArrayUnorderedList<Room> unvisited = new ArrayUnorderedList<>();
-
-        for (int x = 0; x < width; x++) {
-            for (int y = 0; y < height; y++) {
-                dist[x][y] = Double.MAX_VALUE;
-                prev[x][y] = null;
-                unvisited.add(grid[x][y]);
-            }
-        }
-
-        dist[start.getX()][start.getY()] = 0;
-
-        while (!unvisited.isEmpty()) {
-            Room u = null;
-            double minDist = Double.MAX_VALUE;
-
-            DataStructures.Iterator<Room> it = unvisited.iterator();
-            while (it.hasNext()) {
-                Room r = it.next();
-                if (dist[r.getX()][r.getY()] < minDist) {
-                    minDist = dist[r.getX()][r.getY()];
-                    u = r;
-                }
-            }
-
-            if (u == null || u.equals(end)) {
-                break;
-            }
-
-            try {
-                unvisited.remove(u);
-            } catch (DataStructures.Exceptions.EmptyCollectionException e) {
-                e.printStackTrace();
-            }
-
-            // Neighbors
-            DataStructures.Iterator<Connection> connIt = u.getConnections().iterator();
-            while (connIt.hasNext()) {
-                Connection c = connIt.next();
-                if (c.isLocked()) {
-                    continue;
-                }
-
-                Room v = c.getTo();
-                if (unvisited.contains(v)) {
-                    double alt = dist[u.getX()][u.getY()] + 1;
-                    if (alt < dist[v.getX()][v.getY()]) {
-                        dist[v.getX()][v.getY()] = alt;
-                        prev[v.getX()][v.getY()] = u;
-                    }
-                }
-            }
-        }
-
-        // Reconstruct path
-        ArrayUnorderedList<Room> path = new ArrayUnorderedList<>();
-        Room curr = end;
-        if (prev[curr.getX()][curr.getY()] != null || curr.equals(start)) {
-            while (curr != null) {
-                path.addToFront(curr);
-                curr = prev[curr.getX()][curr.getY()];
-            }
-        }
-
-        return path.iterator();
+        // Redireciona para o método correto que usa o grafo
+        return getShortestPath(start, end);
     }
 
     // Methods for Loading/Saving Maps
@@ -504,36 +479,35 @@ public class GameMap {
     }
 
     public int[][] getDistancesTo(Room target) {
-        int[][] dist = new int[width][height];
+        // 1. Inicializar matriz de distâncias
+        int[][] distGrid = new int[width][height];
         for (int x = 0; x < width; x++) {
             for (int y = 0; y < height; y++) {
-                dist[x][y] = Integer.MAX_VALUE;
+                distGrid[x][y] = Integer.MAX_VALUE;
             }
         }
 
-        dist[target.getX()][target.getY()] = 0;
-        DataStructures.Queue.LinkedQueue<Room> queue = new DataStructures.Queue.LinkedQueue<>();
-        queue.enqueue(target);
-
-        while (!queue.isEmpty()) {
-            try {
-                Room u = queue.dequeue();
-                
-                DataStructures.Iterator<Connection> it = u.getConnections().iterator();
-                while (it.hasNext()) {
-                    Connection c = it.next();
-                    if (c.isLocked()) continue;
-                    Room v = c.getTo();
-                    if (dist[v.getX()][v.getY()] == Integer.MAX_VALUE) {
-                        dist[v.getX()][v.getY()] = dist[u.getX()][u.getY()] + 1;
-                        queue.enqueue(v);
-                    }
-                }
-            } catch (Exception e) {
-                e.printStackTrace();
+        // 2. Pedir ao grafo as distâncias (Lógica delegada ao ADT)
+        // Nota: Num grafo não direcionado, dist(A->B) == dist(B->A), 
+        // por isso podemos pedir "distâncias A PARTIR do target"
+        int[] graphDistances = graph.getDistancesFrom(target);
+        
+        // 3. Mapear os resultados do grafo de volta para a grelha 2D
+        // Como o grafo usa um array interno, iteramos pelos vértices pela ordem
+        ArrayUnorderedList<Room> allRooms = graph.getVertices();
+        DataStructures.Iterator<Room> it = allRooms.iterator();
+        
+        int index = 0;
+        while(it.hasNext()) {
+            Room r = it.next();
+            // Só preenche se o vértice for alcançável
+            if (graphDistances[index] != Integer.MAX_VALUE) {
+                distGrid[r.getX()][r.getY()] = graphDistances[index];
             }
+            index++;
         }
-        return dist;
+        
+        return distGrid;
     }
 
     public static void main(String[] args) {
@@ -544,5 +518,12 @@ public class GameMap {
             Utils.MapSerializer.saveToJson(map, filename);
         }
         System.out.println("Done.");
+    }
+
+    /**
+     * Retorna o grafo (ADT) usado para navegação no mapa
+     */
+    public Graph<Room> getGraph() {
+        return graph;
     }
 }
