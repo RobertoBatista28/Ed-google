@@ -1,36 +1,36 @@
 [
   {
-    "question": "Sou a vila construída em colinas e cercada por um grande rio azul nos mapas Vanilla. Que bioma sou?",
+    "question": "Sou uma aldeia que costuma gerar em colinas e é rodeada por um grande rio azul nos mapas Vanilla. Que bioma sou?",
     "options": ["Planícies", "Montanhas", "Savana", "Taiga"],
     "correct": "Montanhas"
   },
   {
-    "question": "Quando olho para cima num dia claro no Overworld, que cor domina o céu cúbico?",
+    "question": "Quando olho para cima num dia limpo no Overworld, que cor domina o céu cúbico?",
     "options": ["Verde", "Vermelho", "Azul", "Roxo"],
     "correct": "Azul"
   },
   {
-    "question": "Criador lendário que nos trouxe Creepers por acidente. Quem foi?",
+    "question": "Criador lendário que nos trouxe os Creepers por acidente. Quem foi?",
     "options": ["Jeb", "Notch", "Dinnerbone", "Searge"],
     "correct": "Notch"
   },
   {
-    "question": "Sou o maior e mais temível boss do jogo original, encontrado no Fim. Quem sou?",
+    "question": "Sou o maior e mais temível boss do jogo original, encontrado no End. Quem sou?",
     "options": ["Wither", "Ender Dragon", "Warden", "Elder Guardian"],
     "correct": "Ender Dragon"
   },
   {
-    "question": "Lar dos desertos, pirâmides e aldeões com roupas claras. Que bioma é?",
+    "question": "Lar dos desertos, templos e aldeões com roupas claras. Que bioma é?",
     "options": ["Savanna", "Desert", "Mesa", "Plains"],
     "correct": "Desert"
   },
   {
-    "question": "Sou essencial para te manter vivo debaixo de água e simbolizado pelo número ‘O2’ no HUD das poções. Que efeito sou?",
+    "question": "Sou essencial para te manter vivo debaixo de água e representado pelo símbolo ‘O2’ no HUD das poções. Que efeito sou?",
     "options": ["Força", "Respiração Aquática", "Velocidade", "Visão Noturna"],
     "correct": "Respiração Aquática"
   },
   {
-    "question": "Artista dos blocos, autor de uma das skins mais icónicas e do clássico sorriso quadrado. Quem é?",
+    "question": "Rosto icónico do jogo e uma das skins mais conhecidas, com o clássico sorriso quadrado. Quem é?",
     "options": ["Steve", "Alex", "Herobrine", "Villager #12"],
     "correct": "Steve"
   },
@@ -40,32 +40,32 @@
     "correct": "Slime"
   },
   {
-    "question": "Normalmente duro 20 minutos, mas quando adicionado um disco solar, fico maior. Quantos minutos possui um ciclo completo de dia e noite?",
+    "question": "O ciclo completo de dia e noite do jogo dura normalmente 20 minutos. Quantos minutos são ao todo?",
     "options": ["20", "10", "30", "24"],
     "correct": "20"
   },
   {
-    "question": "Tenho olhos mas não vejo; sigo caminhos inesperados e deslizo pelo chão. Quem sou?",
+    "question": "Tenho olhos mas não vejo; sigo trajetórias inesperadas e deslizo pelo chão ao ser atirada. Quem sou?",
     "options": ["Ender Pearl", "Slimeball", "Livro encantado", "Barril"],
     "correct": "Ender Pearl"
   },
   {
-    "question": "Quanto mais me partes, mais ganho espaço. O que sou?",
+    "question": "Quanto mais me partes, maior fico. O que sou?",
     "options": ["Bloco de pedra", "Buraco", "Cavidade", "Areia"],
     "correct": "Buraco"
   },
   {
-    "question": "Quanto mais me usas para te secar após nadar, mais molhada fico. Quem sou?",
-    "options": ["Esponja", "Lã", "Balde", "Tocha"],
+    "question": "Quanto mais me usas para te secar depois de nadar, mais molhada fico. Quem sou?",
+    "options": ["Esponja", "Lã", "Balde", "Tocha"],
     "correct": "Esponja"
   },
   {
-    "question": "Não sou vivo, mas cresço; não tenho pulmões, mas preciso de ar; água é a minha inimiga. Quem sou?",
+    "question": "Não sou vivo, mas cresço; não tenho pulmões, mas preciso de ar; e a água é a minha inimiga. Quem sou?",
     "options": ["Fogo", "Slime", "Cacto", "Farinha de Osso"],
     "correct": "Fogo"
   },
   {
-    "question": "No jogo, avanço sempre para a frente e nunca volto atrás. Marco tudo o que já criaste e destruíste. O que sou?",
+    "question": "No jogo, avanço sempre para a frente e nunca volto atrás. Marco tudo o que já criaste ou destruíste. O que sou?",
     "options": ["Tempo", "Redstone", "Dia-noite", "Chunks"],
     "correct": "Tempo"
   },
@@ -75,7 +75,7 @@
     "correct": "Uma nuvem"
   },
   {
-    "question": "Tenho dentes mas não mordo; tenho língua mas não falo. Sou essencial para a redstone. Quem sou?",
+    "question": "Tenho dentes mas não mordo; tenho língua mas não falo. Sou essencial para circuitos de redstone. Quem sou?",
     "options": ["Alavanca", "Repeater", "Pente", "Comando"],
     "correct": "Repeater"
   },
@@ -93,5 +93,35 @@
     "question": "Quanto mais partilhas, mais recebes. O que sou?",
     "options": ["Amor", "Experiência (XP)", "Lápis-Lazúli", "Ouro"],
     "correct": "Experiência (XP)"
+  },
+  {
+    "question": "Sou um bloco raro encontrado no Nether e essencial para criar a Netherite. Que minério sou?",
+    "options": ["Quartzo do Nether", "Ancient Debris", "Ouro do Nether", "Basalto"],
+    "correct": "Ancient Debris"
+  },
+  {
+    "question": "Quando me colocas sobre água, espalho-me rapidamente e crio um tapete verde. Quem sou?",
+    "options": ["Água", "Algas", "Musgo", "Vinhas"],
+    "correct": "Algas"
+  },
+  {
+    "question": "Quando durmo numa cama aqui, explodo em vez de descansar. Onde estou?",
+    "options": ["Overworld", "End", "Nether", "Caverna profunda"],
+    "correct": "Nether"
+  },
+  {
+    "question": "Sou usado para domar lobos e consigo restaurar a tua vida quando cozinhado. O que sou?",
+    "options": ["Ovelha", "Vaca", "Porco", "Galinha"],
+    "correct": "Vaca"
+  },
+  {
+    "question": "Sou uma ferramenta especial capaz de mover blocos inteiros de forma única. Quem sou?",
+    "options": ["Pistão", "Pistão pegajoso", "Redstone Torch", "Observer"],
+    "correct": "Pistão pegajoso"
+  },
+  {
+    "question": "Sou uma estrutura rara que aparece em pântanos e contenho uma bruxa. O que sou?",
+    "options": ["Mina abandonada", "Cabana da bruxa", "Portal em ruínas", "Templo do pântano"],
+    "correct": "Cabana da bruxa"
   }
 ]
