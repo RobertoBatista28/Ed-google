@@ -9,10 +9,11 @@ import javax.swing.*;
 public class MenuPanel extends JPanel {
 
     private final JButton playBtn;
+    private final JButton mapEditorBtn;
     private final JButton helpBtn;
     private final JButton exitBtn;
 
-    public MenuPanel(ActionListener playAction, ActionListener helpAction, ActionListener exitAction) {
+    public MenuPanel(ActionListener playAction, ActionListener mapEditorAction, ActionListener helpAction, ActionListener exitAction) {
         setLayout(new BorderLayout());
 
         // Center Panel for Logo and Buttons
@@ -53,13 +54,22 @@ public class MenuPanel extends JPanel {
         btnGbc.gridwidth = 2;
         buttonsPanel.add(playBtn, btnGbc);
 
+        mapEditorBtn = createButton("EDITOR DE MAPAS", false);
+        mapEditorBtn.addActionListener(e -> {
+            Utils.SoundPlayer.playClick();
+            mapEditorAction.actionPerformed(e);
+        });
+        btnGbc.gridy = 1;
+        btnGbc.gridwidth = 2;
+        buttonsPanel.add(mapEditorBtn, btnGbc);
+
         helpBtn = createButton("AJUDA E SUPORTE", true);
         helpBtn.addActionListener(e -> {
             Utils.SoundPlayer.playClick();
             helpAction.actionPerformed(e);
         });
         
-        btnGbc.gridy = 1;
+        btnGbc.gridy = 2;
         btnGbc.gridwidth = 1;
         btnGbc.gridx = 0;
         btnGbc.weightx = 0.5;

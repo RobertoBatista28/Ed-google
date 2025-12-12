@@ -55,7 +55,7 @@ public class GameConfig {
     public static final int MAIN_WINDOW_WIDTH = 1100;
     public static final int MAIN_WINDOW_HEIGHT = 700;
     public static final String MAIN_WINDOW_TITLE = "MAZECRAFT";
-    public static final String GAME_VERSION = "v3.7.2";
+    public static final String GAME_VERSION = "v4.2.2";
     public static final String MAIN_WINDOW_BACKGROUND_COLOR = "#000000";
     public static final String STATS_PANEL_BACKGROUND_COLOR = "#323232";
     public static final String BUTTONS_BACKGROUND_COLOR = "#A0A0A0";
@@ -93,6 +93,7 @@ public class GameConfig {
     public static final String ENTRANCE_TEXTURE = "entrance-texture.jpg";
     public static final String REDSTONE_BLOCK_TEXTURE = "redstone-block.jpg";
     public static final String SOUL_SAND_TEXTURE = "soul_sand.jpg";
+    public static final String COBBLESTONE_TEXTURE = "cobblestone.jpg";
 
     // Texturas dos icones
     public static final String LEVER_ACTIVE_TEXTURE = "lever-bottom.png";
@@ -124,6 +125,8 @@ public class GameConfig {
     public static final String HOVER_LONG_BUTTON_TEXTURE = "long-button-hover.png";
     public static final String SHORT_BUTTON_TEXTURE = "short-button.png";
     public static final String HOVER_SHORT_BUTTON_TEXTURE = "short-button-hover.png";
+    public static final String TINY_BUTTON_TEXTURE = "tiny-button.png";
+    public static final String HOVER_TINY_BUTTON_TEXTURE = "tiny-button-hover.png";
     public static final String LOGO_TEXTURE = "logo.png";
 
     // Configuração do AI
@@ -138,4 +141,16 @@ public class GameConfig {
     public static final String REPORT_ACCENT_COLOR_HEX = "#DC3232";
     public static final String REPORT_TEXT_PRIMARY_COLOR_HEX = "#F0F0F5";
     public static final String REPORT_TEXT_SECONDARY_COLOR_HEX = "#B4B4BE";
+
+    // Configurações da Janela de Editor de Mapas
+    public static final int MAP_EDITOR_WINDOW_WIDTH = 1075;
+    public static final int MAP_EDITOR_WINDOW_HEIGHT = 850;
+    public static final int MAP_EDITOR_MENU_WIDTH = 250;
+    public static final int LEVER_LINE_THICKNESS = 2;
+    public static final int MAP_EDITOR_CELL_SIZE = 35;
+    public static final int MAP_EDITOR_TOOL_WALL = 0;
+    public static final int MAP_EDITOR_TOOL_PICKAXE = 1;
+    public static final int MAP_EDITOR_TOOL_ENDERPEARL = 2;
+    public static final int MAP_EDITOR_TOOL_LEVER = 3;
+    public static final int MAP_EDITOR_TOOL_QUESTION = 4;
 }

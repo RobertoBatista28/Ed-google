@@ -443,42 +443,4 @@ public class Graph<T> implements GraphADT<T> {
         }
         return list;
     }
-
-    /**
-     * Calcula a distância (em número de arestas) do startVertex para todos os outros.
-     * Retorna um array de inteiros onde o índice corresponde ao índice do vértice.
-     */
-    public int[] getDistancesFrom(T startVertex) {
-        int startIndex = getIndex(startVertex);
-        int[] distances = new int[numVertices];
-        
-        // Inicializar com valor máximo (infinito)
-        for (int i = 0; i < numVertices; i++) {
-            distances[i] = Integer.MAX_VALUE;
-        }
-
-        if (!indexIsValid(startIndex)) {
-            return distances;
-        }
-
-        // BFS para calcular distâncias
-        LinkedQueue<Integer> queue = new LinkedQueue<>();
-        distances[startIndex] = 0;
-        queue.enqueue(startIndex);
-
-        while (!queue.isEmpty()) {
-            try {
-                int current = queue.dequeue();
-                
-                for (int i = 0; i < numVertices; i++) {
-                    // Se existe aresta e ainda não foi visitado
-                    if (adjMatrix[current][i] && distances[i] == Integer.MAX_VALUE) {
-                        distances[i] = distances[current] + 1;
-                        queue.enqueue(i);
-                    }
-                }
-            } catch (Exception e) { }
-        }
-        return distances;
-    }
 }

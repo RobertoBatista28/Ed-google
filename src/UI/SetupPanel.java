@@ -4,8 +4,10 @@ import DataStructures.ArrayList.ArrayUnorderedList;
 import Utils.GameConfig;
 import java.awt.*;
 import java.awt.event.ActionListener;
+import java.awt.geom.RoundRectangle2D;
 import java.awt.image.BufferedImage;
 import javax.swing.*;
+import javax.swing.border.EmptyBorder;
 
 public class SetupPanel extends JPanel {
 
@@ -19,33 +21,44 @@ public class SetupPanel extends JPanel {
 
     public SetupPanel(ActionListener startAction, ActionListener backAction) {
         setLayout(new BorderLayout());
-        setBorder(BorderFactory.createEmptyBorder(20, 20, 20, 20));
+        setBorder(BorderFactory.createEmptyBorder(30, 50, 30, 50));
 
         // Top Panel: Title and Number of Players
         JPanel topPanel = new JPanel();
         topPanel.setLayout(new BoxLayout(topPanel, BoxLayout.Y_AXIS));
         topPanel.setOpaque(false);
 
-        JLabel lblTitle = new JLabel("Configuração do Jogo");
+        JLabel lblTitle = new JLabel("Configuração do jogo");
         lblTitle.setForeground(Color.WHITE);
-        lblTitle.setFont(new Font("Arial", Font.BOLD, 22));
+        lblTitle.setFont(new Font("Arial", Font.BOLD, 28));
         lblTitle.setAlignmentX(Component.CENTER_ALIGNMENT);
         topPanel.add(lblTitle);
-        topPanel.add(Box.createVerticalStrut(10));
+        topPanel.add(Box.createVerticalStrut(20));
 
-        JPanel numPlayersPanel = new JPanel(new FlowLayout());
+        // Modern selector panel
+        JPanel numPlayersPanel = new JPanel(new FlowLayout(FlowLayout.CENTER, 15, 0));
         numPlayersPanel.setOpaque(false);
-        JLabel lblNumPlayers = new JLabel("Número de Jogadores:");
+        
+        JLabel lblNumPlayers = new JLabel("Número de jogadores:");
         lblNumPlayers.setForeground(Color.WHITE);
         lblNumPlayers.setFont(new Font("Arial", Font.BOLD, 16));
+        
         Integer[] options = {2, 3, 4};
         numPlayersCombo = new JComboBox<>(options);
         numPlayersCombo.setSelectedItem(2);
+        numPlayersCombo.setFont(new Font("Arial", Font.BOLD, 14));
+        numPlayersCombo.setPreferredSize(new Dimension(80, 35));
+        numPlayersCombo.setBackground(new Color(60, 60, 60));
+        numPlayersCombo.setForeground(Color.WHITE);
+        numPlayersCombo.setFocusable(false);
+        numPlayersCombo.setCursor(new Cursor(Cursor.HAND_CURSOR));
         numPlayersCombo.addActionListener(e -> updateNameFields());
+        
         numPlayersPanel.add(lblNumPlayers);
         numPlayersPanel.add(numPlayersCombo);
-        numPlayersPanel.setAlignmentX(Component.CENTER_ALIGNMENT);
         topPanel.add(numPlayersPanel);
+        topPanel.add(Box.createVerticalStrut(15));
+        
         add(topPanel, BorderLayout.NORTH);
 
         // Center Panel: Name Fields
@@ -62,8 +75,9 @@ public class SetupPanel extends JPanel {
         add(centerPanel, BorderLayout.CENTER);
 
         // Bottom Panel: Buttons
-        JPanel bottomPanel = new JPanel(new FlowLayout());
+        JPanel bottomPanel = new JPanel(new FlowLayout(FlowLayout.CENTER, 20, 0));
         bottomPanel.setOpaque(false);
+        bottomPanel.setBorder(new EmptyBorder(15, 0, 0, 0));
 
         backBtn = createButton("Voltar");
         backBtn.addActionListener(e -> {
@@ -71,7 +85,7 @@ public class SetupPanel extends JPanel {
             backAction.actionPerformed(e);
         });
 
-        startBtn = createButton("Iniciar Jogo");
+        startBtn = createButton("Iniciar jogo");
         startBtn.addActionListener(e -> {
             Utils.SoundPlayer.playClick();
             startAction.actionPerformed(e);
@@ -122,7 +136,7 @@ public class SetupPanel extends JPanel {
                 super.paintComponent(g);
             }
         };
-        btn.setFont(new Font("Arial", Font.BOLD, 18));
+        btn.setFont(new Font("Arial", Font.BOLD, 16));
         btn.setForeground(Color.WHITE);
         btn.setFocusPainted(false);
         btn.setContentAreaFilled(false);
@@ -142,9 +156,9 @@ public class SetupPanel extends JPanel {
         int num = (Integer) numPlayersCombo.getSelectedItem();
         
         if (num == 2) {
-            namesPanel.setLayout(new GridLayout(1, 2, 40, 20));
+            namesPanel.setLayout(new GridLayout(1, 2, 60, 20));
         } else {
-            namesPanel.setLayout(new GridLayout(2, 2, 40, 20));
+            namesPanel.setLayout(new GridLayout(2, 2, 60, 25));
         }
 
         for (int i = 1; i <= num; i++) {
@@ -157,67 +171,179 @@ public class SetupPanel extends JPanel {
     }
 
     private JPanel createPlayerPanel(int playerNum) {
-        JPanel panel = new JPanel(new GridBagLayout());
-        panel.setOpaque(false);
+        JPanel outerPanel = new JPanel(new BorderLayout());
+        outerPanel.setOpaque(false);
+        
+        // Card panel with rounded corners and semi-transparent background
+        JPanel cardPanel = new JPanel(new BorderLayout()) {
+            @Override
+            protected void paintComponent(Graphics g) {
+                Graphics2D g2d = (Graphics2D) g.create();
+                g2d.setRenderingHint(RenderingHints.KEY_ANTIALIASING, RenderingHints.VALUE_ANTIALIAS_ON);
+                
+                // Semi-transparent dark background
+                g2d.setColor(new Color(30, 30, 30, 200));
+                g2d.fill(new RoundRectangle2D.Double(0, 0, getWidth(), getHeight(), 20, 20));
+                
+                // Subtle border
+                g2d.setColor(new Color(80, 80, 80, 150));
+                g2d.setStroke(new BasicStroke(2));
+                g2d.draw(new RoundRectangle2D.Double(1, 1, getWidth()-2, getHeight()-2, 20, 20));
+                
+                g2d.dispose();
+            }
+        };
+        cardPanel.setOpaque(false);
+        cardPanel.setBorder(new EmptyBorder(18, 18, 18, 18));
+        
+        JPanel contentPanel = new JPanel(new GridBagLayout());
+        contentPanel.setOpaque(false);
         
         GridBagConstraints gbc = new GridBagConstraints();
-        gbc.insets = new Insets(5, 5, 5, 5);
+        gbc.insets = new Insets(6, 8, 6, 8);
         gbc.fill = GridBagConstraints.HORIZONTAL;
+        
+        // Player number header
+        JLabel playerLabel = new JLabel("Jogador " + playerNum);
+        playerLabel.setForeground(new Color(255, 215, 0));
+        playerLabel.setFont(new Font("Arial", Font.BOLD, 18));
+        gbc.gridx = 0; gbc.gridy = 0;
+        gbc.gridwidth = 2;
+        gbc.anchor = GridBagConstraints.CENTER;
+        contentPanel.add(playerLabel, gbc);
+        
+        gbc.gridwidth = 1;
+        gbc.anchor = GridBagConstraints.WEST;
         
         // Name Label
         JLabel nameLabel = new JLabel("Nome:");
-        nameLabel.setForeground(Color.WHITE);
-        nameLabel.setFont(new Font("Arial", Font.BOLD, 14));
-        gbc.gridx = 0; gbc.gridy = 0;
-        panel.add(nameLabel, gbc);
+        nameLabel.setForeground(new Color(200, 200, 200));
+        nameLabel.setFont(new Font("Arial", Font.PLAIN, 14));
+        gbc.gridx = 0; gbc.gridy = 1;
+        contentPanel.add(nameLabel, gbc);
         
-        // Name Field
-        JTextField nameField = new JTextField("Jogador " + playerNum);
-        nameField.setPreferredSize(new Dimension(120, 25));
+        // Name Field with modern style
+        JTextField nameField = new JTextField("Jogador " + playerNum) {
+            @Override
+            protected void paintComponent(Graphics g) {
+                Graphics2D g2d = (Graphics2D) g.create();
+                g2d.setRenderingHint(RenderingHints.KEY_ANTIALIASING, RenderingHints.VALUE_ANTIALIAS_ON);
+                
+                g2d.setColor(new Color(50, 50, 50));
+                g2d.fill(new RoundRectangle2D.Double(0, 0, getWidth(), getHeight(), 10, 10));
+                
+                super.paintComponent(g);
+                g2d.dispose();
+            }
+        };
+        nameField.setPreferredSize(new Dimension(160, 30));
+        nameField.setFont(new Font("Arial", Font.PLAIN, 13));
+        nameField.setForeground(Color.WHITE);
+        nameField.setCaretColor(Color.WHITE);
+        nameField.setBackground(new Color(50, 50, 50));
+        nameField.setBorder(new EmptyBorder(5, 10, 5, 10));
+        nameField.setOpaque(false);
         nameFields.addToRear(nameField);
-        gbc.gridx = 1; gbc.gridy = 0;
-        panel.add(nameField, gbc);
+        gbc.gridx = 1; gbc.gridy = 1;
+        contentPanel.add(nameField, gbc);
         
         // Skin Label
         JLabel skinLabel = new JLabel("Skin:");
-        skinLabel.setForeground(Color.WHITE);
-        skinLabel.setFont(new Font("Arial", Font.BOLD, 14));
-        gbc.gridx = 0; gbc.gridy = 1;
-        panel.add(skinLabel, gbc);
+        skinLabel.setForeground(new Color(200, 200, 200));
+        skinLabel.setFont(new Font("Arial", Font.PLAIN, 14));
+        gbc.gridx = 0; gbc.gridy = 2;
+        contentPanel.add(skinLabel, gbc);
         
-        // Skin Combo
+        // Skin Combo with modern style
         String[] chars = {"Steve", "Alex", "Villager", "Enderman", "Zombie", "Skeleton", "Creeper", "Dragon", "Spider", "Slime", "Wither"};
         JComboBox<String> skinCombo = new JComboBox<>(chars);
-        skinCombo.setPreferredSize(new Dimension(120, 25));
+        skinCombo.setPreferredSize(new Dimension(160, 30));
+        skinCombo.setFont(new Font("Arial", Font.PLAIN, 13));
+        skinCombo.setBackground(new Color(50, 50, 50));
+        skinCombo.setForeground(Color.WHITE);
+        skinCombo.setFocusable(false);
+        skinCombo.setCursor(new Cursor(Cursor.HAND_CURSOR));
         charCombos.addToRear(skinCombo);
-        gbc.gridx = 1; gbc.gridy = 1;
-        panel.add(skinCombo, gbc);
-        
-        // AI Checkbox
-        JCheckBox aiCheck = new JCheckBox("AI");
-        aiCheck.setOpaque(false);
-        aiCheck.setForeground(Color.WHITE);
-        aiCheck.setFont(new Font("Arial", Font.BOLD, 14));
-        typeCheckboxes.addToRear(aiCheck);
         gbc.gridx = 1; gbc.gridy = 2;
-        gbc.anchor = GridBagConstraints.WEST;
-        panel.add(aiCheck, gbc);
+        contentPanel.add(skinCombo, gbc);
         
-        // Image Preview
-        JLabel imageLabel = new JLabel();
-        imageLabel.setPreferredSize(new Dimension(70, 70));
-        imageLabel.setBorder(BorderFactory.createLineBorder(Color.WHITE, 2));
+        // AI Checkbox with modern style
+        JCheckBox aiCheck = new JCheckBox("Jogador IA") {
+            @Override
+            protected void paintComponent(Graphics g) {
+                Graphics2D g2d = (Graphics2D) g.create();
+                g2d.setRenderingHint(RenderingHints.KEY_ANTIALIASING, RenderingHints.VALUE_ANTIALIAS_ON);
+                
+                if (isSelected()) {
+                    g2d.setColor(new Color(255, 215, 0, 50));
+                    g2d.fill(new RoundRectangle2D.Double(0, 0, getWidth(), getHeight(), 8, 8));
+                }
+                
+                super.paintComponent(g);
+                g2d.dispose();
+            }
+        };
+        aiCheck.setOpaque(false);
+        aiCheck.setForeground(new Color(200, 200, 200));
+        aiCheck.setFont(new Font("Arial", Font.PLAIN, 13));
+        aiCheck.setFocusPainted(false);
+        aiCheck.setCursor(new Cursor(Cursor.HAND_CURSOR));
+        typeCheckboxes.addToRear(aiCheck);
+        gbc.gridx = 0; gbc.gridy = 3;
+        gbc.gridwidth = 2;
+        gbc.anchor = GridBagConstraints.CENTER;
+        contentPanel.add(aiCheck, gbc);
+        
+        cardPanel.add(contentPanel, BorderLayout.CENTER);
+        
+        // Image Preview with modern frame
+        JPanel imagePanel = new JPanel(new BorderLayout()) {
+            @Override
+            protected void paintComponent(Graphics g) {
+                super.paintComponent(g);
+            }
+        };
+        imagePanel.setOpaque(false);
+        imagePanel.setPreferredSize(new Dimension(74, 74));
+        
+        JLabel imageLabel = new JLabel() {
+            @Override
+            protected void paintComponent(Graphics g) {
+                super.paintComponent(g);
+                
+                // Draw border exactly around the image
+                if (getIcon() != null) {
+                    Graphics2D g2d = (Graphics2D) g.create();
+                    g2d.setRenderingHint(RenderingHints.KEY_ANTIALIASING, RenderingHints.VALUE_ANTIALIAS_ON);
+                    
+                    int imgSize = 64;
+                    int x = (getWidth() - imgSize) / 2;
+                    int y = (getHeight() - imgSize) / 2;
+                    
+                    // Glow effect
+                    g2d.setColor(new Color(255, 215, 0, 30));
+                    g2d.fillRect(x - 3, y - 3, imgSize + 6, imgSize + 6);
+                    
+                    // Border exactly around the image
+                    g2d.setColor(new Color(255, 215, 0));
+                    g2d.setStroke(new BasicStroke(2));
+                    g2d.drawRect(x - 1, y - 1, imgSize + 2, imgSize + 2);
+                    
+                    g2d.dispose();
+                }
+            }
+        };
+        imageLabel.setHorizontalAlignment(SwingConstants.CENTER);
+        imagePanel.add(imageLabel, BorderLayout.CENTER);
         
         skinCombo.addActionListener(e -> updatePlayerImage(imageLabel, (String) skinCombo.getSelectedItem()));
         updatePlayerImage(imageLabel, (String) skinCombo.getSelectedItem());
         
-        gbc.gridx = 2; gbc.gridy = 0;
-        gbc.gridheight = 2;
-        gbc.anchor = GridBagConstraints.CENTER;
-        gbc.insets = new Insets(5, 15, 5, 5);
-        panel.add(imageLabel, gbc);
+        cardPanel.add(imagePanel, BorderLayout.EAST);
         
-        return panel;
+        outerPanel.add(cardPanel, BorderLayout.CENTER);
+        
+        return outerPanel;
     }
 
     private void updatePlayerImage(JLabel label, String skinName) {

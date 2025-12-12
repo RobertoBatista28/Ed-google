@@ -2,7 +2,7 @@ package Models;
 
 import DataStructures.ArrayList.ArrayUnorderedList;
 import DataStructures.Iterator;
-import java.awt.Color;
+
 
 public class Player {
 
@@ -11,7 +11,6 @@ public class Player {
     // ----------------------------------------------------------------
     // Identity & Configuration
     private String name;
-    private Color color;
     private boolean isBot;
     private String characterType;
 
@@ -37,14 +36,13 @@ public class Player {
     // ----------------------------------------------------------------
     // Constructor
     // ----------------------------------------------------------------
-    public Player(String name, Room startRoom, Color color, boolean isBot, String characterType) {
+    public Player(String name, Room startRoom, boolean isBot, String characterType) {
         if (name.length() > Utils.GameConfig.PLAYER_NAME_MAX_LENGTH) {
             this.name = name.substring(0, Utils.GameConfig.PLAYER_NAME_MAX_LENGTH);
         } else {
             this.name = name;
         }
         this.currentRoom = startRoom;
-        this.color = color;
         this.isBot = isBot;
         this.characterType = characterType;
         this.remainingMoves = 0;
@@ -71,10 +69,6 @@ public class Player {
     // ----------------------------------------------------------------
     public String getName() {
         return name;
-    }
-
-    public Color getColor() {
-        return color;
     }
 
     public boolean isBot() {

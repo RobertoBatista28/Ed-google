@@ -2,7 +2,7 @@ package Models;
 
 import DataStructures.ArrayList.ArrayUnorderedList;
 import DataStructures.Iterator;
-import GameEngine.GameMap;
+import GameEngine.GameMapGenerator;
 import GameEngine.GameMapLoader;
 import java.awt.Point;
 import java.io.BufferedReader;
@@ -16,10 +16,10 @@ public class Report {
      */
     public static class ReportData {
 
-        public GameMap gameMap;
+        public GameMapGenerator gameMap;
         public ArrayUnorderedList<PlayerPath> playerPaths;
 
-        public ReportData(GameMap gameMap, ArrayUnorderedList<PlayerPath> playerPaths) {
+        public ReportData(GameMapGenerator gameMap, ArrayUnorderedList<PlayerPath> playerPaths) {
             this.gameMap = gameMap;
             this.playerPaths = playerPaths;
         }
@@ -48,7 +48,7 @@ public class Report {
      * @return Objeto ReportData contendo o mapa e os caminhos dos jogadores.
      */
     public static ReportData loadReport(String reportFile) {
-        GameMap gameMap = null;
+        GameMapGenerator gameMap = null;
         ArrayUnorderedList<PlayerPath> playerPaths = new ArrayUnorderedList<>();
 
         StringBuilder jsonBuilder = new StringBuilder();

@@ -2,7 +2,7 @@ package UI;
 
 import DataStructures.ArrayList.ArrayUnorderedList;
 import DataStructures.Iterator;
-import GameEngine.GameMap;
+import GameEngine.GameMapGenerator;
 import Models.Player;
 import Models.Report;
 import Models.Report.PlayerPath;
@@ -16,7 +16,7 @@ import javax.swing.border.EmptyBorder;
 public class ReportDialog extends JDialog {
 
     // Dados do relatório
-    private GameMap gameMap;
+    private GameMapGenerator gameMap;
     private ArrayUnorderedList<PlayerPath> playerPaths;
 
     public ReportDialog(JFrame parent, ArrayUnorderedList<Player> players, Player winner, String reportFile) {

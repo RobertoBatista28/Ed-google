@@ -120,6 +120,8 @@ public class HelpPanel extends JPanel {
         addEventInfoWithIcon(eventsContent, "Inversão de Sinal", "Inverte o estado de todas as alavancas no tabuleiro.", GameConfig.REDSTONE_BLOCK_TEXTURE);
         eventsContent.add(Box.createVerticalStrut(12));
         addEventInfoWithIcon(eventsContent, "Redução de Velocidade", "Força 3 movimentos ao jogador devido à redução de velocidade.", GameConfig.SOUL_SAND_TEXTURE);
+        eventsContent.add(Box.createVerticalStrut(12));
+        addEventInfoWithIcon(eventsContent, "Explosão surpresa", "Causa uma explosão que remove todos os itens do inventário.", GameConfig.COBBLESTONE_TEXTURE);
 
         eventsCard.add(eventsContent, BorderLayout.CENTER);
         infoPanel.add(eventsCard);

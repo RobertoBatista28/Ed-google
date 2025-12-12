@@ -9,24 +9,23 @@ import Models.Connection;
 import Models.Player;
 import Models.Room;
 import Utils.GameConfig;
-import java.awt.Color;
 
 public class GameManager {
 
-    private final GameMap gameMap;
+    private final GameMapGenerator gameMap;
     private final ArrayUnorderedList<Player> players;
     private final QueueADT<Player> turnQueue;
     private final QuestionManager questionManager;
     private final RandomEventManager randomEventManager;
     private GameEventListener gameEventListener;
-
     private boolean isEnderPearlSelectionMode = false;
     private Player selectedTargetPlayer = null;
     private int selectedTargetIndex = -1;
+    private boolean isPaused = false;
 
     // ----------------------------------------------------------------
     // Constructor
-    public GameManager(GameMap gameMap) {
+    public GameManager(GameMapGenerator gameMap) {
         this.gameMap = gameMap;
         this.players = new ArrayUnorderedList<>();
         this.turnQueue = new LinkedQueue<>();
@@ -42,7 +41,7 @@ public class GameManager {
 
     // ----------------------------------------------------------------
     // Adding players at starting positions
-    public void addPlayer(String name, Color color, boolean isBot, String characterType) {
+    public void addPlayer(String name, boolean isBot, String characterType) {
         ArrayUnorderedList<Room> entrances = gameMap.getEntrances();
         ArrayUnorderedList<Room> availableEntrances = new ArrayUnorderedList<>();
 
@@ -73,7 +72,7 @@ public class GameManager {
             startRoom = entrances.get(randomIndex);
         }
 
-        Player newPlayer = new Player(name, startRoom, color, isBot, characterType);
+        Player newPlayer = new Player(name, startRoom, isBot, characterType);
         players.add(newPlayer);
         turnQueue.enqueue(newPlayer);
     }
@@ -84,6 +83,10 @@ public class GameManager {
         if (!players.isEmpty()) {
             rollDiceForCurrentPlayer();
         }
+    }
+
+    public void setPaused(boolean paused) {
+        this.isPaused = paused;
     }
 
     // Dice Rolling
@@ -109,10 +112,26 @@ public class GameManager {
     // ----------------------------------------------------------------
     // AI Bot logic
     private void executeBotTurn() {
+        while (isPaused) {
+            try {
+                Thread.sleep(100);
+            } catch (InterruptedException e) {
+                return;
+            }
+        }
+
         try {
             Thread.sleep(GameConfig.AI_INITIAL_DELAY);
         } catch (InterruptedException e) {
             return;
+        }
+
+        while (isPaused) {
+            try {
+                Thread.sleep(100);
+            } catch (InterruptedException e) {
+                return;
+            }
         }
 
         Player bot = getCurrentPlayer();
@@ -123,6 +142,14 @@ public class GameManager {
         int currentDist = distToCenter[bot.getCurrentRoom().getX()][bot.getCurrentRoom().getY()];
 
         while (bot.getMoves() > 0 && bot == getCurrentPlayer()) {
+            while (isPaused) {
+                try {
+                    Thread.sleep(100);
+                } catch (InterruptedException e) {
+                    return;
+                }
+            }
+
             // 1. Check for Lever in current room
             if (bot.getCurrentRoom().hasLever()) {
                 Models.Lever lever = bot.getCurrentRoom().getLever();
@@ -183,7 +210,7 @@ public class GameManager {
                     }
 
                     bot.setMoves(0);
-                    
+
                     try {
                         Thread.sleep(GameConfig.MOVEMENT_DURATION);
                     } catch (InterruptedException e) {
@@ -255,11 +282,23 @@ public class GameManager {
                 }
             }
 
-            // 5. Calculate Path usando o ADT Graph
-            Iterator<Room> pathIt = gameMap.getShortestPath(bot.getCurrentRoom(), target);
+            // 5. Calculate Path
+            Iterator<Room> pathIt = gameMap.getShortestPathDijkstra(bot.getCurrentRoom(), target);
 
             if (pathIt.hasNext()) {
                 pathIt.next();
+            }
+
+            if (!pathIt.hasNext()) {
+                // Try to find a lever to go to
+                Room leverTarget = findNearestUsefulLever(bot.getCurrentRoom());
+                if (leverTarget != null) {
+                    System.out.println("Bot " + bot.getName() + " is stuck! Going to lever at " + leverTarget.getX() + "," + leverTarget.getY());
+                    pathIt = gameMap.getShortestPathDijkstra(bot.getCurrentRoom(), leverTarget);
+                    if (pathIt.hasNext()) {
+                        pathIt.next();
+                    }
+                }
             }
 
             if (!pathIt.hasNext()) {
@@ -288,6 +327,38 @@ public class GameManager {
         if (bot.getMoves() > 0 && bot == getCurrentPlayer()) {
             nextTurn();
         }
+    }
+
+    private Room findNearestUsefulLever(Room start) {
+        int[][] distances = gameMap.getDistancesTo(start);
+        Room bestLever = null;
+        int minDistance = Integer.MAX_VALUE;
+
+        for (int x = 0; x < gameMap.getWidth(); x++) {
+            for (int y = 0; y < gameMap.getHeight(); y++) {
+                Room r = gameMap.getRoom(x, y);
+                if (r.hasLever()) {
+                    int d = distances[x][y];
+                    if (d != Integer.MAX_VALUE && d < minDistance) {
+                        // Check if useful
+                        boolean useful = false;
+                        Iterator<Connection> targets = r.getLever().getTargets().iterator();
+                        while (targets.hasNext()) {
+                            if (targets.next().isLocked()) {
+                                useful = true;
+                                break;
+                            }
+                        }
+
+                        if (useful) {
+                            minDistance = d;
+                            bestLever = r;
+                        }
+                    }
+                }
+            }
+        }
+        return bestLever;
     }
 
     // Get Random Neighbor (for stuck bots)
@@ -435,6 +506,15 @@ public class GameManager {
                     } catch (InterruptedException e) {
                         e.printStackTrace();
                     }
+
+                    while (isPaused) {
+                        try {
+                            Thread.sleep(100);
+                        } catch (InterruptedException e) {
+                            return;
+                        }
+                    }
+
                     nextTurn();
                 }).start();
             }
@@ -609,11 +689,13 @@ public class GameManager {
 
     private int getCurrentPlayerIndex() {
         Player current = getCurrentPlayer();
-        if (current == null) return -1;
+        if (current == null) {
+            return -1;
+        }
         for (int i = 0; i < players.size(); i++) {
-             if (players.get(i) == current) {
-                 return i;
-             }
+            if (players.get(i) == current) {
+                return i;
+            }
         }
         return -1;
     }
@@ -651,7 +733,7 @@ public class GameManager {
         Room temp = currentPlayer.getCurrentRoom();
         currentPlayer.setCurrentRoom(target.getCurrentRoom());
         target.setCurrentRoom(temp);
-        
+
         currentPlayer.addToPath(currentPlayer.getCurrentRoom());
         target.addToPath(target.getCurrentRoom());
 
@@ -698,9 +780,25 @@ public class GameManager {
                     gameEventListener.onGameStatus("Bot " + player.getName() + " está a pensar...");
                 }
 
+                while (isPaused) {
+                    try {
+                        Thread.sleep(100);
+                    } catch (InterruptedException e) {
+                        return true;
+                    }
+                }
+
                 try {
                     Thread.sleep((long) GameConfig.AI_QUESTIONS_THINKING);
                 } catch (InterruptedException e) {
+                }
+
+                while (isPaused) {
+                    try {
+                        Thread.sleep(100);
+                    } catch (InterruptedException e) {
+                        return true;
+                    }
                 }
 
                 boolean correct = Math.random() < GameConfig.AI_QUESTIONS_RATE;
@@ -755,27 +853,7 @@ public class GameManager {
 
         Room currentRoom = currentPlayer.getCurrentRoom();
         if (currentRoom.hasLever()) {
-            Models.Lever lever = currentRoom.getLever();
-            lever.toggle(); // Altera o estado na 'Room/Connection'
-            
-            // --- SINCRONIZAÇÃO OBRIGATÓRIA COM O GRAFO ---
-            Iterator<Connection> targets = lever.getTargets().iterator();
-            while(targets.hasNext()) {
-                Connection c = targets.next();
-                Room from = c.getFrom();
-                Room to = c.getTo();
-                
-                // Atualiza a matriz de adjacência do grafo
-                if (c.isLocked()) {
-                    // Se trancou, removemos a aresta (Bot deixa de ver caminho)
-                    gameMap.getGraph().removeEdge(from, to);
-                } else {
-                    // Se destrancou, adicionamos a aresta (Bot passa a ver caminho)
-                    gameMap.getGraph().addEdge(from, to);
-                }
-            }
-            // ---------------------------------------------
-            
+            currentRoom.getLever().toggle();
             currentPlayer.incrementLeverInteractions();
             if (currentRoom.getLever().isActive()) {
                 Utils.SoundPlayer.playLeverOn();
@@ -851,7 +929,7 @@ public class GameManager {
         return players;
     }
 
-    public GameMap getGameMap() {
+    public GameMapGenerator getGameMap() {
         return gameMap;
     }
 }

@@ -4,7 +4,7 @@ import DataStructures.ArrayList.ArrayUnorderedList;
 import GameEngine.GameController;
 import GameEngine.GameEventListener;
 import GameEngine.GameManager;
-import GameEngine.GameMap;
+import GameEngine.GameMapGenerator;
 import GameEngine.GameMapLoader;
 import Models.Player;
 import Models.Question;
@@ -14,18 +14,22 @@ import javax.swing.*;
 
 public class MainWindow extends JFrame implements GameEventListener {
 
-    private CardLayout cardLayout;
-    private JPanel mainPanel;
-    private MenuPanel menuPanel;
+    // Layout & Panels
+    private final CardLayout cardLayout;
+    private final JPanel mainPanel;
+    private final MenuPanel menuPanel;
     private SetupPanel setupPanel;
-    private HelpPanel helpPanel;
+    private final HelpPanel helpPanel;
+    private final MapEditor mapEditor;
     private PauseMenuPanel pauseMenuPanel;
-    private JPanel gameContainer;
-    private JLayeredPane gameLayeredPane;
-    private StatsPanel statsPanel;
+    private final JPanel gameContainer;
+    private final JLayeredPane gameLayeredPane;
+    private final StatsPanel statsPanel;
     private MapPanel mapPanel;
+
+    // Game Logic
     private GameManager gameManager;
-    private GameMap gameMap;
+    private GameMapGenerator gameMap;
     private GameController gameController;
     private boolean isPaused = false;
 
@@ -43,37 +47,37 @@ public class MainWindow extends JFrame implements GameEventListener {
         // 1. Menu Panel
         menuPanel = new MenuPanel(
                 e -> showSetup(),
+                e -> showEditor(),
                 e -> showHelp(),
                 e -> System.exit(0)
         );
 
         // 2. Setup Panel
+        setupPanel = null;
         setupPanel = new SetupPanel(
                 e -> startGame(setupPanel.getPlayerNames(), setupPanel.getPlayerTypes(), setupPanel.getPlayerCharacters()),
                 e -> showMenu()
         );
 
-        // Help Panel
         helpPanel = new HelpPanel(e -> showMenu());
+        mapEditor = new MapEditor(e -> showMenu());
 
-        // 3. Game Container (Stats + Map + Pause Menu Overlay)
+        // 3. Game Container
         gameContainer = new JPanel(new BorderLayout());
-        
-        // Use JLayeredPane for overlay support
+
         gameLayeredPane = new JLayeredPane();
         gameLayeredPane.setLayout(null);
-        
+
         statsPanel = new StatsPanel();
         gameContainer.add(statsPanel, BorderLayout.NORTH);
         gameContainer.add(gameLayeredPane, BorderLayout.CENTER);
-        
-        // Setup layered pane resize handling
+
         setupGameLayeredPane();
 
-        // Add panels to CardLayout
         mainPanel.add(menuPanel, "MENU");
         mainPanel.add(setupPanel, "SETUP");
         mainPanel.add(helpPanel, "HELP");
+        mainPanel.add(mapEditor, "EDITOR");
         mainPanel.add(gameContainer, "GAME");
 
         add(mainPanel);
@@ -96,6 +100,12 @@ public class MainWindow extends JFrame implements GameEventListener {
         cardLayout.show(mainPanel, "SETUP");
     }
 
+    private void showEditor() {
+        setSize(GameConfig.MAP_EDITOR_WINDOW_WIDTH, GameConfig.MAP_EDITOR_WINDOW_HEIGHT);
+        setLocationRelativeTo(null);
+        cardLayout.show(mainPanel, "EDITOR");
+    }
+
     private void showHelp() {
         setSize(GameConfig.MAIN_WINDOW_WIDTH, GameConfig.MAIN_WINDOW_HEIGHT);
         setLocationRelativeTo(null);
@@ -110,12 +120,10 @@ public class MainWindow extends JFrame implements GameEventListener {
         gameManager.setGameEventListener(this);
 
         // Add Players
-        Color[] colors = {Color.RED, Color.BLUE, Color.GREEN, Color.YELLOW};
-        
         DataStructures.Iterator<String> nameIt = playerNames.iterator();
         DataStructures.Iterator<Boolean> typeIt = playerTypes.iterator();
         DataStructures.Iterator<String> charIt = playerCharacters.iterator();
-        
+
         int i = 0;
         while (nameIt.hasNext() && typeIt.hasNext() && charIt.hasNext()) {
             String name = nameIt.next();
@@ -125,7 +133,7 @@ public class MainWindow extends JFrame implements GameEventListener {
             if (name.trim().isEmpty()) {
                 name = "Player " + (i + 1);
             }
-            gameManager.addPlayer(name, colors[i % colors.length], isBot, characterType);
+            gameManager.addPlayer(name, isBot, characterType);
             i++;
         }
 
@@ -134,7 +142,7 @@ public class MainWindow extends JFrame implements GameEventListener {
             gameLayeredPane.remove(mapPanel);
         }
         mapPanel = new MapPanel(gameManager);
-        
+
         // Add MapPanel to layered pane
         mapPanel.setBounds(0, 0, GameConfig.GAME_WINDOW_WIDTH, GameConfig.GAME_WINDOW_HEIGHT - statsPanel.getPreferredSize().height);
         gameLayeredPane.add(mapPanel, JLayeredPane.DEFAULT_LAYER);
@@ -143,12 +151,12 @@ public class MainWindow extends JFrame implements GameEventListener {
         if (gameController != null) {
             removeKeyListener(gameController);
         }
-        
+
         // Remove old key listeners
         for (java.awt.event.KeyListener kl : getKeyListeners()) {
             removeKeyListener(kl);
         }
-        
+
         gameController = new GameController(gameManager, mapPanel);
         gameController.setStatsPanel(statsPanel);
 
@@ -159,7 +167,6 @@ public class MainWindow extends JFrame implements GameEventListener {
                 if (e.getKeyCode() == java.awt.event.KeyEvent.VK_ESCAPE) {
                     MainWindow.this.togglePauseMenu();
                 } else if (!MainWindow.this.isPaused) {
-                    // Only forward keys to game controller if not paused
                     gameController.keyPressed(e);
                 }
             }
@@ -186,61 +193,65 @@ public class MainWindow extends JFrame implements GameEventListener {
                 pauseMenuPanel = null;
             }
             isPaused = false;
+            if (gameManager != null) {
+                gameManager.setPaused(false);
+            }
         } else {
             // Open pause menu
             pauseMenuPanel = new PauseMenuPanel(
-                e -> togglePauseMenu(), // Resume
-                e -> showHelpFromGame(), // Help
-                e -> returnToMainMenu()  // Main Menu
+                    e -> togglePauseMenu(),
+                    e -> showHelpFromGame(),
+                    e -> returnToMainMenu()
             );
-            
+
             // Set bounds to cover entire game area
             int layerWidth = gameLayeredPane.getWidth();
             int layerHeight = gameLayeredPane.getHeight();
             pauseMenuPanel.setBounds(0, 0, layerWidth, layerHeight);
-            
+
             gameLayeredPane.add(pauseMenuPanel, JLayeredPane.PALETTE_LAYER);
             isPaused = true;
+            if (gameManager != null) {
+                gameManager.setPaused(true);
+            }
         }
-        
+
         gameLayeredPane.revalidate();
         gameLayeredPane.repaint();
         requestFocusInWindow();
     }
 
     private void showHelpFromGame() {
-        // Create a temporary help dialog
         JDialog helpDialog = new JDialog(this, "Ajuda e Suporte", true);
         helpDialog.setSize(GameConfig.MAIN_WINDOW_WIDTH, GameConfig.MAIN_WINDOW_HEIGHT);
         helpDialog.setLocationRelativeTo(this);
-        
+
         HelpPanel tempHelpPanel = new HelpPanel(e -> helpDialog.dispose());
         helpDialog.add(tempHelpPanel);
         helpDialog.setVisible(true);
-        
+
         requestFocusInWindow();
     }
 
     private void returnToMainMenu() {
-        // Clean up game state
         if (gameController != null) {
             removeKeyListener(gameController);
         }
-        
+
         if (pauseMenuPanel != null) {
             gameLayeredPane.remove(pauseMenuPanel);
             pauseMenuPanel = null;
         }
-        
+
         if (mapPanel != null) {
             gameLayeredPane.remove(mapPanel);
             mapPanel = null;
         }
-        
+
         isPaused = false;
         gameManager = null;
         gameMap = null;
-        
+
         showMenu();
     }
 
@@ -251,19 +262,17 @@ public class MainWindow extends JFrame implements GameEventListener {
             public void componentResized(java.awt.event.ComponentEvent e) {
                 int width = gameLayeredPane.getWidth();
                 int height = gameLayeredPane.getHeight();
-                
+
                 if (mapPanel != null) {
                     mapPanel.setBounds(0, 0, width, height);
                 }
-                
+
                 if (pauseMenuPanel != null) {
                     pauseMenuPanel.setBounds(0, 0, width, height);
                 }
             }
         });
     }
-
-
 
     @Override
     public void onDiceRolled(String playerName, int die1, int die2) {
@@ -288,10 +297,8 @@ public class MainWindow extends JFrame implements GameEventListener {
     @Override
     public void onGameOver(Player winner) {
         SwingUtilities.invokeLater(() -> {
-            // Generate JSON Report
             String reportFile = Utils.GameReport.generateReport(gameManager.getPlayers(), winner, gameManager.getGameMap().getMapName());
-            
-            // Show Report Dialog
+
             new ReportDialog(this, gameManager.getPlayers(), winner, reportFile).setVisible(true);
 
             showMenu();

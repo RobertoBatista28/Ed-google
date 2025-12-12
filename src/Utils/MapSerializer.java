@@ -1,7 +1,7 @@
 package Utils;
 
 import DataStructures.Iterator;
-import GameEngine.GameMap;
+import GameEngine.GameMapGenerator;
 import Models.Connection;
 import Models.Room;
 import java.io.FileWriter;
@@ -9,7 +9,8 @@ import java.io.IOException;
 
 public class MapSerializer {
 
-    public static void saveToJson(GameMap map, String filename) {
+    public static void saveToJson(GameMapGenerator map, String filename) {
+        // Serialize map to JSON
         StringBuilder sb = new StringBuilder();
         sb.append("{\n");
         sb.append("  \"width\": ").append(map.getWidth()).append(",\n");

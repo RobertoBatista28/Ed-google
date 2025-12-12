@@ -94,7 +94,7 @@ public class StatsPanel extends JPanel {
 
             if (p.equals(currentPlayer)) {
                 pPanel.setBorder(BorderFactory.createCompoundBorder(
-                        BorderFactory.createLineBorder(p.getColor(), 3),
+                        BorderFactory.createLineBorder(Color.ORANGE, 3), // Cor fixa para destacar o jogador atual
                         BorderFactory.createEmptyBorder((int) (5 * scale), (int) (5 * scale), (int) (5 * scale), (int) (5 * scale))
                 ));
                 pPanel.setBackground(new Color(60, 60, 60));
@@ -121,7 +121,7 @@ public class StatsPanel extends JPanel {
             }
 
             JLabel nameLbl = new JLabel(p.getName());
-            nameLbl.setForeground(p.getColor());
+            nameLbl.setForeground(Color.WHITE); // Cor padrão
             nameLbl.setFont(new Font("Arial", Font.BOLD, Math.max(12, (int) (18 * scale))));
             nameLbl.setAlignmentX(Component.CENTER_ALIGNMENT);
 

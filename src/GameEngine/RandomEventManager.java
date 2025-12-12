@@ -108,7 +108,7 @@ public class RandomEventManager {
         return json.startsWith("true", startIndex);
     }
 
-    public Event checkForRandomEvent(Player player, GameMap gameMap, Room currentRoom) {
+    public Event checkForRandomEvent(Player player, GameMapGenerator gameMap, Room currentRoom) {
         if (random.nextDouble() < GameConfig.RANDOM_EVENT_PROBABILITY) {
             if (events.isEmpty()) {
                 return null;
@@ -124,14 +124,15 @@ public class RandomEventManager {
                         yield def;
                     }
                     case "SOUL_SAND" -> {
-                        triggerSoulSandEvent(gameMap, currentRoom);
+                        triggerSoulSandEvent(currentRoom);
                         yield def;
                     }
                     case "CREEPER" -> {
                         triggerCreeperEvent(player, currentRoom);
                         yield def;
                     }
-                    default -> def;
+                    default ->
+                        def;
                 };
             }
         }
@@ -141,7 +142,7 @@ public class RandomEventManager {
     // ----------------------------------------------------------------
     // Event: Redstone Block
     // Power: Inverts the state of all levers on the board.
-    private String triggerRedstoneBlockEvent(GameMap gameMap, Room currentRoom) {
+    private String triggerRedstoneBlockEvent(GameMapGenerator gameMap, Room currentRoom) {
         String texturePath = GameConfig.TEXTURES_PATH + GameConfig.REDSTONE_BLOCK_TEXTURE;
         java.awt.image.BufferedImage redstoneTexture = ImageLoader.getImage(texturePath);
         currentRoom.setCustomFloorImage(redstoneTexture);
@@ -158,17 +159,19 @@ public class RandomEventManager {
                 }
             }
         }
+        Utils.SoundPlayer.playRedstoneBlock();
         return "REDSTONE_BLOCK";
     }
 
     // ----------------------------------------------------------------
     // Event: Soul Sand
     // Power: Reduces player's movement by 3 turns.
-    private String triggerSoulSandEvent(GameMap gameMap, Room currentRoom) {
+    private String triggerSoulSandEvent(Room currentRoom) {
         String texturePath = GameConfig.TEXTURES_PATH + GameConfig.SOUL_SAND_TEXTURE;
         java.awt.image.BufferedImage soulSandTexture = ImageLoader.getImage(texturePath);
         currentRoom.setCustomFloorImage(soulSandTexture);
         currentRoom.setSoulSand(true);
+        Utils.SoundPlayer.playSoulSand();
         return "SOUL_SAND";
     }
 
@@ -176,7 +179,6 @@ public class RandomEventManager {
     // Event: Creeper
     // Power: Removes all items from player inventory.
     private void triggerCreeperEvent(Player player, Room currentRoom) {
-        // Remove all items
         while (!player.getInventory().isEmpty()) {
             try {
                 player.getInventory().removeLast();
@@ -185,13 +187,12 @@ public class RandomEventManager {
             }
         }
 
-        // Change floor texture
-        java.awt.image.BufferedImage cobblestone = Utils.ImageLoader.getImage("src/Resources/Assets/Textures/cobblestone.jpg");
+        String texturePath = GameConfig.TEXTURES_PATH + GameConfig.COBBLESTONE_TEXTURE;
+        java.awt.image.BufferedImage cobblestone = Utils.ImageLoader.getImage(texturePath);
         if (cobblestone != null) {
             currentRoom.setCustomFloorImage(cobblestone);
         }
 
-        // Play sound
         Utils.SoundPlayer.playExplosion();
     }
 }

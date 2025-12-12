@@ -31,11 +31,19 @@ public class SoundPlayer {
     }
 
     public static void playQuestion() {
-        playSound("src/Resources/Assets/Sound/youtube_question.wav");
+        playSound("src/Resources/Assets/Sound/minecraft_toast.wav");
     }
 
     public static void playExplosion() {
         playSound("src/Resources/Assets/Sound/minecraft_explosion.wav");
+    }
+
+    public static void playRedstoneBlock() {
+        playSound("src/Resources/Assets/Sound/minecraft_redstoneblock.wav");
+    }
+
+    public static void playSoulSand() {
+        playSound("src/Resources/Assets/Sound/minecraft_soulsand.wav");
     }
 
     public static void playSound(String filePath) {

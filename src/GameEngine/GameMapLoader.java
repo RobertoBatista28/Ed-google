@@ -13,7 +13,7 @@ import java.io.IOException;
 
 public class GameMapLoader {
 
-    public GameMap loadRandomMap() {
+    public GameMapGenerator loadRandomMap() {
         File dir = new File(GameConfig.MAP_LOADER_PATH);
         File[] files = dir.listFiles((d, name) -> name.matches("map-\\d+x\\d+-\\d{4}\\.json"));
 
@@ -21,23 +21,33 @@ public class GameMapLoader {
         File selectedFile = files[rand.nextInt(files.length)];
         System.out.println("Loading map: " + selectedFile.getName());
 
-        GameMap map = loadMapFromFile(selectedFile);
+        GameMapGenerator map = loadMapFromFile(selectedFile);
         map.setMapName(selectedFile.getName());
         return map;
     }
 
-    public GameMap loadMap(String mapName) {
+    public GameMapGenerator loadMap(String mapName) {
         File file = new File(GameConfig.MAP_LOADER_PATH + File.separator + mapName);
         if (!file.exists()) {
             System.err.println("Map file not found: " + mapName);
-            return new GameMap(21, 21, true);
+            return new GameMapGenerator(21, 21, true);
         }
-        GameMap map = loadMapFromFile(file);
+        GameMapGenerator map = loadMapFromFile(file);
         map.setMapName(mapName);
         return map;
     }
 
-    private GameMap loadMapFromFile(File file) {
+    public GameMapGenerator loadMap(File file) {
+        if (!file.exists()) {
+            System.err.println("Map file not found: " + file.getAbsolutePath());
+            return new GameMapGenerator(21, 21, true);
+        }
+        GameMapGenerator map = loadMapFromFile(file);
+        map.setMapName(file.getName());
+        return map;
+    }
+
+    private GameMapGenerator loadMapFromFile(File file) {
         StringBuilder jsonBuilder = new StringBuilder();
         try (BufferedReader br = new BufferedReader(new FileReader(file))) {
             String line;
@@ -45,7 +55,7 @@ public class GameMapLoader {
                 jsonBuilder.append(line.trim());
             }
         } catch (IOException e) {
-            return new GameMap(21, 21, true);
+            return new GameMapGenerator(21, 21, true);
         }
 
         String json = jsonBuilder.toString();
@@ -57,7 +67,7 @@ public class GameMapLoader {
         int width = (wStr != null) ? Integer.parseInt(wStr) : 21;
         int height = (hStr != null) ? Integer.parseInt(hStr) : 21;
 
-        GameMap map = new GameMap(width, height, false);
+        GameMapGenerator map = new GameMapGenerator(width, height, false);
 
         // Parse Rooms
         String roomsJson = extractArray(json, "rooms");
