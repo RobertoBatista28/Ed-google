@@ -116,6 +116,10 @@ public class MainWindow extends JFrame implements GameEventListener {
         // Initialize Game Logic
         GameMapLoader loader = new GameMapLoader();
         gameMap = loader.loadRandomMap();
+        
+        // FORÇAR GERAÇÃO DE NOVO MAPA (Para validar o Grafo)
+        // gameMap = new GameMapGenerator(21, 21, true);
+        
         gameManager = new GameManager(gameMap);
         gameManager.setGameEventListener(this);
 
@@ -234,6 +238,7 @@ public class MainWindow extends JFrame implements GameEventListener {
     }
 
     private void returnToMainMenu() {
+        Utils.SoundPlayer.stopCaveAmbience();
         if (gameController != null) {
             removeKeyListener(gameController);
         }
@@ -296,6 +301,7 @@ public class MainWindow extends JFrame implements GameEventListener {
 
     @Override
     public void onGameOver(Player winner) {
+        Utils.SoundPlayer.stopCaveAmbience();
         SwingUtilities.invokeLater(() -> {
             String reportFile = Utils.GameReport.generateReport(gameManager.getPlayers(), winner, gameManager.getGameMap().getMapName());
 

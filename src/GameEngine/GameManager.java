@@ -80,6 +80,7 @@ public class GameManager {
     // ----------------------------------------------------------------
     // Game Flow Control
     public void startGame() {
+        Utils.SoundPlayer.playCaveAmbience();
         if (!players.isEmpty()) {
             rollDiceForCurrentPlayer();
         }
@@ -282,11 +283,11 @@ public class GameManager {
                 }
             }
 
-            // 5. Calculate Path using GameNetwork (Dijkstra with weighted edges)
-            Iterator<Room> pathIt = gameMap.getNetwork().iteratorShortestPath(bot.getCurrentRoom(), target);
+            // 5. Calculate Path
+            Iterator<Room> pathIt = gameMap.getGraph().iteratorShortestPath(bot.getCurrentRoom(), target);
 
             if (pathIt.hasNext()) {
-                pathIt.next(); // Skip current room
+                pathIt.next();
             }
 
             if (!pathIt.hasNext()) {
@@ -294,9 +295,9 @@ public class GameManager {
                 Room leverTarget = findNearestUsefulLever(bot.getCurrentRoom());
                 if (leverTarget != null) {
                     System.out.println("Bot " + bot.getName() + " is stuck! Going to lever at " + leverTarget.getX() + "," + leverTarget.getY());
-                    pathIt = gameMap.getNetwork().iteratorShortestPath(bot.getCurrentRoom(), leverTarget);
+                    pathIt = gameMap.getGraph().iteratorShortestPath(bot.getCurrentRoom(), leverTarget);
                     if (pathIt.hasNext()) {
-                        pathIt.next(); // Skip current room
+                        pathIt.next();
                     }
                 }
             }
@@ -364,10 +365,12 @@ public class GameManager {
     // Get Random Neighbor (for stuck bots)
     private Iterator<Room> getRandomNeighbor(Room current) {
         ArrayUnorderedList<Room> neighbors = new ArrayUnorderedList<>();
-        java.util.List<Room> accessibleNeighbors = gameMap.getNetwork().getAccessibleNeighbors(current);
-        
-        for (Room neighbor : accessibleNeighbors) {
-            neighbors.add(neighbor);
+        Iterator<Connection> it = gameMap.getGraph().getConnections(current).iterator();
+        while (it.hasNext()) {
+            Connection c = it.next();
+            if (!c.isLocked()) {
+                neighbors.add(c.getTo());
+            }
         }
 
         if (!neighbors.isEmpty()) {
@@ -438,11 +441,17 @@ public class GameManager {
 
         currentPlayer.setLastDirection(direction.toUpperCase());
 
-        // Use GameNetwork to validate movement
-        if (gameMap.getNetwork().canMove(current, targetRoom)) {
+        Connection conn = getConnection(current, targetRoom);
+        if (conn != null) {
+            if (conn.isLocked()) {
+                System.out.println("Blocked! Wall is active.");
+                return;
+            }
+
             currentPlayer.setCurrentRoom(targetRoom);
             currentPlayer.moveTaken();
             currentPlayer.addToPath(targetRoom);
+            Utils.SoundPlayer.playSteps();
 
             if (movingFromSoulSand) {
                 int currentMoves = currentPlayer.getMoves();
@@ -883,7 +892,14 @@ public class GameManager {
 
     // Get Connection Helper
     private Connection getConnection(Room from, Room to) {
-        return gameMap.getNetwork().getConnection(from, to);
+        Iterator<Connection> it = gameMap.getGraph().getConnections(from).iterator();
+        while (it.hasNext()) {
+            Connection c = it.next();
+            if (c.getTo().equals(to)) {
+                return c;
+            }
+        }
+        return null;
     }
 
     // Get Current Player Helper

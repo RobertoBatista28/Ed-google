@@ -46,6 +46,41 @@ public class SoundPlayer {
         playSound("src/Resources/Assets/Sound/minecraft_soulsand.wav");
     }
 
+    public static void playSteps() {
+        playSound("src/Resources/Assets/Sound/minecraft_steps.wav");
+    }
+
+    private static Clip ambienceClip;
+
+    public static void playCaveAmbience() {
+        if (ambienceClip != null && ambienceClip.isRunning()) {
+            return;
+        }
+        try {
+            File soundFile = new File("src/Resources/Assets/Sound/minecraft_cave_ambience.wav");
+            if (!soundFile.exists()) {
+                return;
+            }
+            AudioInputStream audioIn = AudioSystem.getAudioInputStream(soundFile);
+            ambienceClip = AudioSystem.getClip();
+            ambienceClip.open(audioIn);
+            ambienceClip.loop(Clip.LOOP_CONTINUOUSLY);
+            ambienceClip.start();
+        } catch (UnsupportedAudioFileException | IOException | LineUnavailableException e) {
+            e.printStackTrace();
+        }
+    }
+
+    public static void stopCaveAmbience() {
+        if (ambienceClip != null) {
+            if (ambienceClip.isRunning()) {
+                ambienceClip.stop();
+            }
+            ambienceClip.close();
+            ambienceClip = null;
+        }
+    }
+
     public static void playSound(String filePath) {
         try {
             File soundFile = new File(filePath);

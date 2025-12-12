@@ -1,28 +1,24 @@
 package GameEngine;
 
 import DataStructures.ArrayList.ArrayUnorderedList;
+import DataStructures.Graph.GameGraph;
 import DataStructures.Stack.LinkedStack;
 import Models.Connection;
-import Models.GameNetwork;
 import Models.Lever;
 import Models.Random;
 import Models.Room;
 import Utils.GameConfig;
 
-/**
- * GameMapGenerator now uses GameNetwork as the single source of truth for topology.
- * Refactored according to Aula 12 - Graphs and Aula 11 - Heaps.
- */
 public class GameMapGenerator {
 
     // ----------------------------------------------------------------
     // Fields
     // ----------------------------------------------------------------
     private Room[][] grid;
+    private GameGraph graph;
     private int width;
     private int height;
     private String mapName;
-    private GameNetwork network; // Single source of truth for topology
 
     public GameMapGenerator(int width, int height) {
         this(width, height, true);
@@ -33,7 +29,7 @@ public class GameMapGenerator {
         this.height = height;
         this.mapName = "Generated";
         this.grid = new Room[width][height];
-        this.network = new GameNetwork(); // Initialize the network
+        this.graph = new GameGraph();
         if (generate) {
             generateMap();
             generateLevers();
@@ -137,18 +133,26 @@ public class GameMapGenerator {
 
             Room targetRoom1 = grid[tx][ty];
 
-            java.util.List<Room> neighbors = network.getAccessibleNeighbors(targetRoom1);
-            if (neighbors.isEmpty()) {
+            if (graph.getConnections(targetRoom1).isEmpty()) {
                 continue;
             }
 
-            Random randConn = new Random();
-            Room targetRoom2 = neighbors.get(randConn.nextInt(neighbors.size()));
-            Connection targetConn = network.getConnection(targetRoom1, targetRoom2);
+            ArrayUnorderedList<Connection> conns = graph.getConnections(targetRoom1);
+            int cIdx = rand.nextInt(conns.size());
+            Connection targetConn = null;
+
+            DataStructures.Iterator<Connection> it = conns.iterator();
+            for (int i = 0; i <= cIdx; i++) {
+                if (it.hasNext()) {
+                    targetConn = it.next();
+                }
+            }
 
             if (targetConn == null) {
                 continue;
             }
+
+            Room targetRoom2 = targetConn.getTo();
 
             if (targetRoom2.getX() == 0 || targetRoom2.getX() == width - 1
                     || targetRoom2.getY() == 0 || targetRoom2.getY() == height - 1) {
@@ -163,9 +167,13 @@ public class GameMapGenerator {
             Lever lever = new Lever();
             lever.addTarget(targetConn);
 
-            Connection reverseConn = network.getConnection(targetRoom2, targetRoom1);
-            if (reverseConn != null) {
-                lever.addTarget(reverseConn);
+            DataStructures.Iterator<Connection> itRev = graph.getConnections(targetRoom2).iterator();
+            while (itRev.hasNext()) {
+                Connection rev = itRev.next();
+                if (rev.getTo().equals(targetRoom1)) {
+                    lever.addTarget(rev);
+                    break;
+                }
             }
 
             leverRoom.setLever(lever);
@@ -182,6 +190,7 @@ public class GameMapGenerator {
 
                 Room room = new Room(x + "," + y, x, y, isEntrance, isCenter);
                 grid[x][y] = room;
+                graph.addVertex(room);
             }
         }
 
@@ -206,9 +215,7 @@ public class GameMapGenerator {
                     int idx = rand.nextInt(neighbors.size());
                     Room next = neighbors.get(idx);
 
-                    // Add connection to network instead of directly to rooms
-                    Connection conn = new Connection(current, next, false, null);
-                    network.addConnection(current, next, conn);
+                    graph.addEdge(current, next, new Connection(current, next, false, null));
 
                     visited[next.getX()][next.getY()] = true;
                     stack.push(next);
@@ -227,15 +234,13 @@ public class GameMapGenerator {
                 if (x < width / 2 + 1) {
                     Room right = grid[x + 1][y];
                     if (!isConnected(r, right)) {
-                        Connection conn = new Connection(r, right, false, null);
-                        network.addConnection(r, right, conn);
+                        graph.addEdge(r, right, new Connection(r, right, false, null));
                     }
                 }
                 if (y < height / 2 + 1) {
                     Room down = grid[x][y + 1];
                     if (!isConnected(r, down)) {
-                        Connection conn = new Connection(r, down, false, null);
-                        network.addConnection(r, down, conn);
+                        graph.addEdge(r, down, new Connection(r, down, false, null));
                     }
                 }
             }
@@ -250,8 +255,7 @@ public class GameMapGenerator {
                     Room right = grid[x + 1][y];
                     if (!isConnected(r, right)) {
                         if (rand.nextDouble() < 0.1 && !createsSquare(r, right)) {
-                            Connection conn = new Connection(r, right, false, null);
-                            network.addConnection(r, right, conn);
+                            graph.addEdge(r, right, new Connection(r, right, false, null));
                         }
                     }
                 }
@@ -260,8 +264,7 @@ public class GameMapGenerator {
                     Room down = grid[x][y + 1];
                     if (!isConnected(r, down)) {
                         if (rand.nextDouble() < 0.1 && !createsSquare(r, down)) {
-                            Connection conn = new Connection(r, down, false, null);
-                            network.addConnection(r, down, conn);
+                            graph.addEdge(r, down, new Connection(r, down, false, null));
                         }
                     }
                 }
@@ -328,7 +331,7 @@ public class GameMapGenerator {
     }
 
     private boolean isConnected(Room r1, Room r2) {
-        return network.getConnection(r1, r2) != null;
+        return graph.getConnection(r1, r2) != null;
     }
 
     public Room getRoom(int x, int y) {
@@ -347,75 +350,15 @@ public class GameMapGenerator {
         return entrances;
     }
 
-    public DataStructures.Iterator<Room> getShortestPathDijkstra(Room start, Room end) {
-        // Dijkstra's Algorithm
-        double[][] dist = new double[width][height];
-        Room[][] prev = new Room[width][height];
-        ArrayUnorderedList<Room> unvisited = new ArrayUnorderedList<>();
-
-        for (int x = 0; x < width; x++) {
-            for (int y = 0; y < height; y++) {
-                dist[x][y] = Double.MAX_VALUE;
-                prev[x][y] = null;
-                unvisited.add(grid[x][y]);
-            }
-        }
-
-        dist[start.getX()][start.getY()] = 0;
-
-        while (!unvisited.isEmpty()) {
-            Room u = null;
-            double minDist = Double.MAX_VALUE;
-
-            DataStructures.Iterator<Room> it = unvisited.iterator();
-            while (it.hasNext()) {
-                Room r = it.next();
-                if (dist[r.getX()][r.getY()] < minDist) {
-                    minDist = dist[r.getX()][r.getY()];
-                    u = r;
-                }
-            }
-
-            if (u == null || u.equals(end)) {
-                break;
-            }
-
-            try {
-                unvisited.remove(u);
-            } catch (DataStructures.Exceptions.EmptyCollectionException e) {
-                e.printStackTrace();
-            }
-
-            // Neighbors
-            java.util.List<Room> neighbors = network.getAccessibleNeighbors(u);
-            for (Room v : neighbors) {
-                if (unvisited.contains(v)) {
-                    double alt = dist[u.getX()][u.getY()] + 1;
-                    if (alt < dist[v.getX()][v.getY()]) {
-                        dist[v.getX()][v.getY()] = alt;
-                        prev[v.getX()][v.getY()] = u;
-                    }
-                }
-            }
-        }
-
-        // Reconstruct path
-        ArrayUnorderedList<Room> path = new ArrayUnorderedList<>();
-        Room curr = end;
-        if (prev[curr.getX()][curr.getY()] != null || curr.equals(start)) {
-            while (curr != null) {
-                path.addToFront(curr);
-                curr = prev[curr.getX()][curr.getY()];
-            }
-        }
-
-        return path.iterator();
+    public GameGraph getGraph() {
+        return graph;
     }
 
     // Methods for Loading/Saving Maps
     public void setRoom(int x, int y, Room room) {
         if (x >= 0 && x < width && y >= 0 && y < height) {
             grid[x][y] = room;
+            graph.addVertex(room);
         }
     }
 
@@ -423,8 +366,7 @@ public class GameMapGenerator {
         Room from = grid[fromX][fromY];
         Room to = grid[toX][toY];
         if (from != null && to != null) {
-            Connection conn = new Connection(from, to, isLocked, null);
-            network.addConnection(from, to, conn);
+            graph.addEdge(from, to, new Connection(from, to, isLocked, null));
         }
     }
 
@@ -454,8 +396,7 @@ public class GameMapGenerator {
 
             // Check if connection already exists
             if (!isConnected(room, targetRoom)) {
-                Connection conn = new Connection(room, targetRoom, false, null);
-                network.addConnection(room, targetRoom, conn);
+                graph.addEdge(room, targetRoom, new Connection(room, targetRoom, false, null));
             }
         }
     }
@@ -474,13 +415,6 @@ public class GameMapGenerator {
 
     public void setMapName(String mapName) {
         this.mapName = mapName;
-    }
-    
-    /**
-     * Gets the game network (single source of truth for topology).
-     */
-    public GameNetwork getNetwork() {
-        return network;
     }
 
     public ArrayUnorderedList<Room> getPickaxeRooms() {
@@ -511,8 +445,11 @@ public class GameMapGenerator {
             try {
                 Room u = queue.dequeue();
                 
-                java.util.List<Room> neighbors = network.getAccessibleNeighbors(u);
-                for (Room v : neighbors) {
+                DataStructures.Iterator<Connection> it = graph.getConnections(u).iterator();
+                while (it.hasNext()) {
+                    Connection c = it.next();
+                    if (c.isLocked()) continue;
+                    Room v = c.getTo();
                     if (dist[v.getX()][v.getY()] == Integer.MAX_VALUE) {
                         dist[v.getX()][v.getY()] = dist[u.getX()][u.getY()] + 1;
                         queue.enqueue(v);

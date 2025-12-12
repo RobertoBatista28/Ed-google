@@ -423,10 +423,13 @@ public class ReportDialog extends JDialog {
                 return false;
             }
 
-            Models.Room targetRoom = gameMap.getRoom(targetX, targetY);
-            if (targetRoom != null) {
-                Models.Connection connection = gameMap.getNetwork().getConnection(room, targetRoom);
-                return connection != null;
+            Iterator<Models.Connection> it = gameMap.getGraph().getConnections(room).iterator();
+            while (it.hasNext()) {
+                Models.Connection c = it.next();
+                Models.Room to = c.getTo();
+                if (to.getX() == targetX && to.getY() == targetY) {
+                    return true;
+                }
             }
             return false;
         }

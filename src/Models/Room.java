@@ -1,12 +1,5 @@
 package Models;
 
-// REMOVIDO: import DataStructures.ArrayList.ArrayUnorderedList;
-
-/**
- * Room represents a room in the game labyrinth.
- * Refactored according to Aula 12 - Graphs: Room only stores room data,
- * NOT topology connections. The GameNetwork is the single source of truth for topology.
- */
 public class Room {
 
     // ----------------------------------------------------------------
@@ -17,13 +10,11 @@ public class Room {
     private int y;
     private boolean isEntrance;
     private boolean isCenter;
-    // REMOVED: private ArrayUnorderedList<Connection> connections;
     private Lever lever;
     private boolean hasQuestion;
     private boolean hasPickaxe;
     private boolean hasEnderPearl;
     private boolean isSoulSand;
-    // TODO: Replace these with String representations for API/UI separation
     private java.awt.Color customFloorColor;
     private java.awt.image.BufferedImage customFloorImage;
 
@@ -36,7 +27,6 @@ public class Room {
         this.y = y;
         this.isEntrance = isEntrance;
         this.isCenter = isCenter;
-        // REMOVED: this.connections = new ArrayUnorderedList<>();
         this.lever = null;
         this.hasQuestion = false;
         this.hasPickaxe = false;
@@ -44,19 +34,6 @@ public class Room {
         this.isSoulSand = false;
         this.customFloorColor = null;
         this.customFloorImage = null;
-    }
-
-    // ----------------------------------------------------------------
-    // Movement Cost Method (for Weighted Graph)
-    // ----------------------------------------------------------------
-    
-    /**
-     * Returns the movement cost for entering this room.
-     * Used by the GameNetwork to set edge weights.
-     * Soul Sand rooms cost 3.0, normal rooms cost 1.0.
-     */
-    public double getMovementCost() {
-        return isSoulSand ? 3.0 : 1.0;
     }
 
     // ----------------------------------------------------------------
@@ -143,9 +120,6 @@ public class Room {
     public boolean isCenter() {
         return isCenter;
     }
-
-    // REMOVED: getConnections() and addConnection() methods
-    // These are now handled by GameNetwork as the single source of truth
 
     @Override
     public String toString() {

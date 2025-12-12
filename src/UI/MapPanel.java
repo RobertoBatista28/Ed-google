@@ -1,5 +1,6 @@
 package UI;
 
+import DataStructures.Iterator;
 import GameEngine.GameManager;
 import Models.Connection;
 import Models.Player;
@@ -387,9 +388,13 @@ public class MapPanel extends JPanel {
     }
 
     private Connection getConnection(Room r, int targetX, int targetY) {
-        Room targetRoom = gameManager.getGameMap().getRoom(targetX, targetY);
-        if (targetRoom != null) {
-            return gameManager.getGameMap().getNetwork().getConnection(r, targetRoom);
+        Iterator<Connection> it = gameManager.getGameMap().getGraph().getConnections(r).iterator();
+        while (it.hasNext()) {
+            Connection c = it.next();
+            Room target = c.getTo();
+            if (target.getX() == targetX && target.getY() == targetY) {
+                return c;
+            }
         }
         return null;
     }

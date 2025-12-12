@@ -10,16 +10,15 @@ public class Graph<T> implements GraphADT<T> {
     protected final int DEFAULT_CAPACITY = 10;
     protected int numVertices;
     protected boolean[][] adjMatrix;
-    protected T[] vertices;
+    protected Object[] vertices;
 
     /**
      * Creates an empty graph.
      */
-    @SuppressWarnings("unchecked")
     public Graph() {
         numVertices = 0;
         this.adjMatrix = new boolean[DEFAULT_CAPACITY][DEFAULT_CAPACITY];
-        this.vertices = (T[]) (new Object[DEFAULT_CAPACITY]);
+        this.vertices = new Object[DEFAULT_CAPACITY];
     }
 
     /**
@@ -156,7 +155,7 @@ public class Graph<T> implements GraphADT<T> {
         while (!traversalQueue.isEmpty()) {
             try {
                 x = traversalQueue.dequeue();
-                resultList.add(vertices[x]);
+                resultList.add((T) vertices[x]);
 
                 for (int i = 0; i < numVertices; i++) {
                     if (adjMatrix[x][i] && !visited[i]) {
@@ -206,7 +205,7 @@ public class Graph<T> implements GraphADT<T> {
         }
 
         traversalStack.push(startIndex);
-        resultList.add(vertices[startIndex]);
+        resultList.add((T) vertices[startIndex]);
         visited[startIndex] = true;
 
         while (!traversalStack.isEmpty()) {
@@ -217,7 +216,7 @@ public class Graph<T> implements GraphADT<T> {
                 for (int i = 0; (i < numVertices) && !found; i++) {
                     if (adjMatrix[x][i] && !visited[i]) {
                         traversalStack.push(i);
-                        resultList.add(vertices[i]);
+                        resultList.add((T) vertices[i]);
                         visited[i] = true;
                         found = true;
                     }
@@ -307,7 +306,7 @@ public class Graph<T> implements GraphADT<T> {
         // Build result list from stack (reversing the path)
         while (!pathStack.isEmpty()) {
             try {
-                resultList.add(vertices[pathStack.pop()]);
+                resultList.add((T) vertices[pathStack.pop()]);
             } catch (Exception e) {
                 // Should not happen
             }
@@ -408,9 +407,8 @@ public class Graph<T> implements GraphADT<T> {
         return result;
     }
 
-    @SuppressWarnings("unchecked")
     protected void expandCapacity() {
-        T[] largerVertices = (T[]) (new Object[vertices.length * 2]);
+        Object[] largerVertices = new Object[vertices.length * 2];
         boolean[][] largerAdjMatrix = new boolean[vertices.length * 2][vertices.length * 2];
 
         System.arraycopy(vertices, 0, largerVertices, 0, numVertices);
@@ -439,7 +437,7 @@ public class Graph<T> implements GraphADT<T> {
     public ArrayUnorderedList<T> getVertices() {
         ArrayUnorderedList<T> list = new ArrayUnorderedList<>();
         for (int i = 0; i < numVertices; i++) {
-            list.add(vertices[i]);
+            list.add((T) vertices[i]);
         }
         return list;
     }

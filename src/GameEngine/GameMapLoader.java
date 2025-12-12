@@ -15,7 +15,17 @@ public class GameMapLoader {
 
     public GameMapGenerator loadRandomMap() {
         File dir = new File(GameConfig.MAP_LOADER_PATH);
+        if (!dir.exists() || !dir.isDirectory()) {
+            System.err.println("Map directory not found: " + dir.getAbsolutePath());
+            return new GameMapGenerator(21, 21, true);
+        }
+
         File[] files = dir.listFiles((d, name) -> name.matches("map-\\d+x\\d+-\\d{4}\\.json"));
+
+        if (files == null || files.length == 0) {
+            System.err.println("No map files found in: " + dir.getAbsolutePath());
+            return new GameMapGenerator(21, 21, true);
+        }
 
         Random rand = new Random();
         File selectedFile = files[rand.nextInt(files.length)];
@@ -132,9 +142,13 @@ public class GameMapLoader {
                         Room to = map.getRoom(toX, toY);
 
                         if (from != null && to != null) {
-                            Connection c = map.getNetwork().getConnection(from, to);
-                            if (c != null) {
-                                lever.addTarget(c);
+                            DataStructures.Iterator<Connection> it = map.getGraph().getConnections(from).iterator();
+                            while (it.hasNext()) {
+                                Connection c = it.next();
+                                if (c.getTo().equals(to)) {
+                                    lever.addTarget(c);
+                                    break;
+                                }
                             }
                         }
                     }

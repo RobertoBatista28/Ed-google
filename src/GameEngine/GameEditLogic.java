@@ -113,14 +113,22 @@ public class GameEditLogic {
                         Room from = map.getRoom(c.getFrom().getX(), c.getFrom().getY());
                         Room to = map.getRoom(c.getTo().getX(), c.getTo().getY());
 
-                        Models.Connection mapConn = map.getNetwork().getConnection(from, to);
-                        if (mapConn != null) {
-                            newLever.addTarget(mapConn);
+                        DataStructures.Iterator<Models.Connection> mapConnIt = map.getGraph().getConnections(from).iterator();
+                        while (mapConnIt.hasNext()) {
+                            Models.Connection mapConn = mapConnIt.next();
+                            if (mapConn.getTo() == to) {
+                                newLever.addTarget(mapConn);
+                                break;
+                            }
                         }
-                        
-                        Models.Connection mapConnReverse = map.getNetwork().getConnection(to, from);
-                        if (mapConnReverse != null) {
-                            newLever.addTarget(mapConnReverse);
+
+                        DataStructures.Iterator<Models.Connection> mapConnIt2 = map.getGraph().getConnections(to).iterator();
+                        while (mapConnIt2.hasNext()) {
+                            Models.Connection mapConn = mapConnIt2.next();
+                            if (mapConn.getTo() == from) {
+                                newLever.addTarget(mapConn);
+                                break;
+                            }
                         }
                     }
                     map.getRoom(x, y).setLever(newLever);
@@ -226,19 +234,24 @@ public class GameEditLogic {
                 editorRoom.setHasQuestion(gameRoom.hasQuestion());
                 editorRoom.setLever(gameRoom.getLever());
 
-                java.util.List<Room> accessibleNeighbors = map.getNetwork().getAccessibleNeighbors(gameRoom);
-                for (Room target : accessibleNeighbors) {
+                var conns = map.getGraph().getConnections(gameRoom);
+                var it = conns.iterator();
+                while (it.hasNext()) {
+                    var conn = it.next();
+                    Room target = conn.getTo();
                     int tx = target.getX();
                     int ty = target.getY();
 
-                    if (tx == x + 1 && ty == y) {
-                        vWalls[x + 1][y] = false;
-                    } else if (tx == x - 1 && ty == y) {
-                        vWalls[x][y] = false;
-                    } else if (tx == x && ty == y + 1) {
-                        hWalls[x][y + 1] = false;
-                    } else if (tx == x && ty == y - 1) {
-                        hWalls[x][y] = false;
+                    if (!conn.isLocked()) {
+                        if (tx == x + 1 && ty == y) {
+                            vWalls[x + 1][y] = false;
+                        } else if (tx == x - 1 && ty == y) {
+                            vWalls[x][y] = false;
+                        } else if (tx == x && ty == y + 1) {
+                            hWalls[x][y + 1] = false;
+                        } else if (tx == x && ty == y - 1) {
+                            hWalls[x][y] = false;
+                        }
                     }
                 }
             }
