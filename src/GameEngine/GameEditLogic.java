@@ -242,14 +242,16 @@ public class GameEditLogic {
                     int tx = target.getX();
                     int ty = target.getY();
 
-                    if (tx == x + 1 && ty == y) {
-                        vWalls[x + 1][y] = false;
-                    } else if (tx == x - 1 && ty == y) {
-                        vWalls[x][y] = false;
-                    } else if (tx == x && ty == y + 1) {
-                        hWalls[x][y + 1] = false;
-                    } else if (tx == x && ty == y - 1) {
-                        hWalls[x][y] = false;
+                    if (!conn.isLocked()) {
+                        if (tx == x + 1 && ty == y) {
+                            vWalls[x + 1][y] = false;
+                        } else if (tx == x - 1 && ty == y) {
+                            vWalls[x][y] = false;
+                        } else if (tx == x && ty == y + 1) {
+                            hWalls[x][y + 1] = false;
+                        } else if (tx == x && ty == y - 1) {
+                            hWalls[x][y] = false;
+                        }
                     }
                 }
             }
