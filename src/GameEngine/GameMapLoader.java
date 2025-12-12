@@ -132,13 +132,9 @@ public class GameMapLoader {
                         Room to = map.getRoom(toX, toY);
 
                         if (from != null && to != null) {
-                            DataStructures.Iterator<Connection> it = from.getConnections().iterator();
-                            while (it.hasNext()) {
-                                Connection c = it.next();
-                                if (c.getTo().equals(to)) {
-                                    lever.addTarget(c);
-                                    break;
-                                }
+                            Connection c = map.getNetwork().getConnection(from, to);
+                            if (c != null) {
+                                lever.addTarget(c);
                             }
                         }
                     }

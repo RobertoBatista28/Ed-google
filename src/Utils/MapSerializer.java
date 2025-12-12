@@ -42,23 +42,36 @@ public class MapSerializer {
         // Connections
         sb.append("  \"connections\": [\n");
         boolean firstConn = true;
+        java.util.Set<String> addedConnections = new java.util.HashSet<>();
+        
         for (int x = 0; x < map.getWidth(); x++) {
             for (int y = 0; y < map.getHeight(); y++) {
                 Room r = map.getRoom(x, y);
-                Iterator<Connection> it = r.getConnections().iterator();
-                while (it.hasNext()) {
-                    Connection c = it.next();
-                    if (!firstConn) {
-                        sb.append(",\n");
+                java.util.List<Room> neighbors = map.getNetwork().getAccessibleNeighbors(r);
+                
+                for (Room neighbor : neighbors) {
+                    String connKey = Math.min(r.getX(), neighbor.getX()) + "," + 
+                                   Math.min(r.getY(), neighbor.getY()) + "-" + 
+                                   Math.max(r.getX(), neighbor.getX()) + "," + 
+                                   Math.max(r.getY(), neighbor.getY());
+                    
+                    if (!addedConnections.contains(connKey)) {
+                        addedConnections.add(connKey);
+                        Connection c = map.getNetwork().getConnection(r, neighbor);
+                        if (c != null) {
+                            if (!firstConn) {
+                                sb.append(",\n");
+                            }
+                            sb.append("    {");
+                            sb.append("\"fromX\": ").append(c.getFrom().getX()).append(", ");
+                            sb.append("\"fromY\": ").append(c.getFrom().getY()).append(", ");
+                            sb.append("\"toX\": ").append(c.getTo().getX()).append(", ");
+                            sb.append("\"toY\": ").append(c.getTo().getY()).append(", ");
+                            sb.append("\"isLocked\": ").append(c.isLocked());
+                            sb.append("}");
+                            firstConn = false;
+                        }
                     }
-                    sb.append("    {");
-                    sb.append("\"fromX\": ").append(c.getFrom().getX()).append(", ");
-                    sb.append("\"fromY\": ").append(c.getFrom().getY()).append(", ");
-                    sb.append("\"toX\": ").append(c.getTo().getX()).append(", ");
-                    sb.append("\"toY\": ").append(c.getTo().getY()).append(", ");
-                    sb.append("\"isLocked\": ").append(c.isLocked());
-                    sb.append("}");
-                    firstConn = false;
                 }
             }
         }
