@@ -10,6 +10,9 @@ import Models.Player;
 import Models.Room;
 import Utils.GameConfig;
 
+/**
+ * Manages the game state, players, turns, and game logic.
+ */
 public class GameManager {
 
     private final GameMapGenerator gameMap;
@@ -25,6 +28,11 @@ public class GameManager {
 
     // ----------------------------------------------------------------
     // Constructor
+    /**
+     * Constructor for GameManager.
+     *
+     * @param gameMap the game map generator instance
+     */
     public GameManager(GameMapGenerator gameMap) {
         this.gameMap = gameMap;
         this.players = new ArrayUnorderedList<>();
@@ -35,12 +43,24 @@ public class GameManager {
 
     // ----------------------------------------------------------------
     // Event Listener Setter
+    /**
+     * Sets the game event listener.
+     *
+     * @param listener the game event listener
+     */
     public void setGameEventListener(GameEventListener listener) {
         this.gameEventListener = listener;
     }
 
     // ----------------------------------------------------------------
     // Adding players at starting positions
+    /**
+     * Adds a player to the game at a random starting position.
+     *
+     * @param name          the name of the player
+     * @param isBot         true if the player is a bot, false otherwise
+     * @param characterType the character type of the player
+     */
     public void addPlayer(String name, boolean isBot, String characterType) {
         ArrayUnorderedList<Room> entrances = gameMap.getEntrances();
         ArrayUnorderedList<Room> availableEntrances = new ArrayUnorderedList<>();
@@ -79,6 +99,9 @@ public class GameManager {
 
     // ----------------------------------------------------------------
     // Game Flow Control
+    /**
+     * Starts the game.
+     */
     public void startGame() {
         Utils.SoundPlayer.playCaveAmbience();
         if (!players.isEmpty()) {
@@ -86,11 +109,19 @@ public class GameManager {
         }
     }
 
+    /**
+     * Sets the paused state of the game.
+     *
+     * @param paused true to pause the game, false to resume
+     */
     public void setPaused(boolean paused) {
         this.isPaused = paused;
     }
 
     // Dice Rolling
+    /**
+     * Rolls the dice for the current player.
+     */
     private void rollDiceForCurrentPlayer() {
         Player currentPlayer = getCurrentPlayer();
         if (currentPlayer != null) {
@@ -112,6 +143,10 @@ public class GameManager {
 
     // ----------------------------------------------------------------
     // AI Bot logic
+    /**
+     * Executes the turn logic for a bot player.
+     * Handles movement, item usage, and interaction with game elements.
+     */
     private void executeBotTurn() {
         while (isPaused) {
             try {
@@ -330,6 +365,12 @@ public class GameManager {
         }
     }
 
+    /**
+     * Finds the nearest useful lever to the given room.
+     *
+     * @param start the starting room
+     * @return the room containing the nearest useful lever, or null if none found
+     */
     private Room findNearestUsefulLever(Room start) {
         int[][] distances = gameMap.getDistancesTo(start);
         Room bestLever = null;
@@ -363,6 +404,13 @@ public class GameManager {
     }
 
     // Get Random Neighbor (for stuck bots)
+    /**
+     * Gets a random neighbor of the current room.
+     * Used when the bot is stuck.
+     *
+     * @param current the current room
+     * @return an iterator containing the random neighbor
+     */
     private Iterator<Room> getRandomNeighbor(Room current) {
         ArrayUnorderedList<Room> neighbors = new ArrayUnorderedList<>();
         Iterator<Connection> it = gameMap.getGraph().getConnections(current).iterator();
@@ -390,6 +438,13 @@ public class GameManager {
 
     // ----------------------------------------------------------------
     // Player movement and interaction Logic
+    /**
+     * Determines the direction from one room to another.
+     *
+     * @param from the starting room
+     * @param to   the destination room
+     * @return the direction as a string ("UP", "DOWN", "LEFT", "RIGHT"), or null if not adjacent
+     */
     private String getDirection(Room from, Room to) {
         if (to.getX() > from.getX()) {
             return "RIGHT";
@@ -406,6 +461,12 @@ public class GameManager {
         return null;
     }
 
+    /**
+     * Moves the current player in the specified direction.
+     * Handles collisions, item pickups, events, and win conditions.
+     *
+     * @param direction the direction to move ("UP", "DOWN", "LEFT", "RIGHT")
+     */
     public void movePlayer(String direction) {
         if (players.isEmpty()) {
             return;
@@ -525,6 +586,11 @@ public class GameManager {
         }
     }
 
+    /**
+     * Uses an item from the player's inventory.
+     *
+     * @param index the index of the item in the inventory
+     */
     public void useItem(int index) {
         Player currentPlayer = getCurrentPlayer();
         if (currentPlayer == null || currentPlayer.getMoves() <= 0) {
@@ -596,6 +662,12 @@ public class GameManager {
     // OBJECT INTERACTION LOGIC (Rules & Responsiveness)
     // ----------------------------------------------------------------
     // Logic for Pickaxe: Pickup and Usage
+    /**
+     * Handles the pickup of a pickaxe by a player.
+     *
+     * @param player the player picking up the pickaxe
+     * @param room   the room containing the pickaxe
+     */
     private void handlePickaxePickup(Player player, Room room) {
         if (room.hasPickaxe()) {
             Models.Item item = new Models.Item("Pickaxe", "Tool");
@@ -617,6 +689,9 @@ public class GameManager {
         }
     }
 
+    /**
+     * Uses a pickaxe from the current player's inventory.
+     */
     public void usePickaxe() {
         Player currentPlayer = getCurrentPlayer();
         if (currentPlayer == null) {
@@ -646,6 +721,12 @@ public class GameManager {
 
     // ----------------------------------------------------------------
     // Logic for Ender Pearl
+    /**
+     * Handles the pickup of an ender pearl by a player.
+     *
+     * @param player the player picking up the ender pearl
+     * @param room   the room containing the ender pearl
+     */
     private void handleEnderPearlPickup(Player player, Room room) {
         if (room.hasEnderPearl()) {
             Models.Item item = new Models.Item("Ender Pearl", "Item");
@@ -667,14 +748,27 @@ public class GameManager {
         }
     }
 
+    /**
+     * Checks if the game is in ender pearl selection mode.
+     *
+     * @return true if in selection mode, false otherwise
+     */
     public boolean isEnderPearlSelectionMode() {
         return isEnderPearlSelectionMode;
     }
 
+    /**
+     * Gets the currently selected target player for ender pearl usage.
+     *
+     * @return the selected target player
+     */
     public Player getSelectedTargetPlayer() {
         return selectedTargetPlayer;
     }
 
+    /**
+     * Starts the ender pearl selection mode.
+     */
     public void startEnderPearlSelection() {
         if (players.size() <= 1) {
             if (gameEventListener != null) {
@@ -689,6 +783,11 @@ public class GameManager {
         }
     }
 
+    /**
+     * Gets the index of the current player in the players list.
+     *
+     * @return the index of the current player
+     */
     private int getCurrentPlayerIndex() {
         Player current = getCurrentPlayer();
         if (current == null) {
@@ -702,6 +801,11 @@ public class GameManager {
         return -1;
     }
 
+    /**
+     * Cycles through potential targets for ender pearl usage.
+     *
+     * @param direction the direction to cycle (1 for next, -1 for previous)
+     */
     public void cycleEnderPearlTarget(int direction) {
         if (!isEnderPearlSelectionMode) {
             return;
@@ -724,6 +828,9 @@ public class GameManager {
         }
     }
 
+    /**
+     * Confirms the use of an ender pearl on the selected target.
+     */
     public void confirmEnderPearlUse() {
         if (!isEnderPearlSelectionMode || selectedTargetPlayer == null) {
             return;
@@ -759,6 +866,12 @@ public class GameManager {
         nextTurn();
     }
 
+    /**
+     * Consumes an item from the player's inventory.
+     *
+     * @param p        the player consuming the item
+     * @param itemName the name of the item to consume
+     */
     private void consumeItem(Player p, String itemName) {
         Iterator<Models.Item> it = p.getInventory().iterator();
         int index = 0;
@@ -773,6 +886,13 @@ public class GameManager {
 
     // ----------------------------------------------------------------
     // Logic for Questions
+    /**
+     * Handles the encounter of a question by a player.
+     *
+     * @param player the player encountering the question
+     * @param room   the room containing the question
+     * @return true if a question was encountered, false otherwise
+     */
     private boolean handleQuestionEncounter(Player player, Room room) {
         if (room.hasQuestion()) {
             Models.Question q = questionManager.getNextQuestion();
@@ -825,6 +945,11 @@ public class GameManager {
         return false;
     }
 
+    /**
+     * Handles the result of a question answer.
+     *
+     * @param correct true if the answer was correct, false otherwise
+     */
     public void handleQuestionResult(boolean correct) {
         Player currentPlayer = getCurrentPlayer();
         Room currentRoom = currentPlayer.getCurrentRoom();
@@ -847,6 +972,9 @@ public class GameManager {
 
     // ----------------------------------------------------------------
     // Logic for Levers
+    /**
+     * Interacts with a lever in the current room.
+     */
     public void interactWithLever() {
         Player currentPlayer = getCurrentPlayer();
         if (currentPlayer == null || currentPlayer.getMoves() <= 0) {
@@ -879,6 +1007,13 @@ public class GameManager {
     // GAME LOGIC HELPERS
     // ----------------------------------------------------------------
     // Logic for Win Condition
+    /**
+     * Checks if the player has reached the center room (win condition).
+     *
+     * @param player the player to check
+     * @param room   the room the player is in
+     * @return true if the player has won, false otherwise
+     */
     private boolean handleWinCondition(Player player, Room room) {
         if (room.isCenter()) {
             if (gameEventListener != null) {
@@ -891,6 +1026,13 @@ public class GameManager {
     }
 
     // Get Connection Helper
+    /**
+     * Gets the connection between two rooms.
+     *
+     * @param from the starting room
+     * @param to   the destination room
+     * @return the connection between the rooms, or null if none exists
+     */
     private Connection getConnection(Room from, Room to) {
         Iterator<Connection> it = gameMap.getGraph().getConnections(from).iterator();
         while (it.hasNext()) {
@@ -903,6 +1045,11 @@ public class GameManager {
     }
 
     // Get Current Player Helper
+    /**
+     * Gets the player whose turn it currently is.
+     *
+     * @return the current player
+     */
     public Player getCurrentPlayer() {
         if (turnQueue.isEmpty()) {
             return null;

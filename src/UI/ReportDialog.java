@@ -13,12 +13,26 @@ import java.awt.image.BufferedImage;
 import javax.swing.*;
 import javax.swing.border.EmptyBorder;
 
+/**
+ * ReportDialog displays the final game report with player statistics and game map visualization.
+ * This dialog shows the winner, detailed player performance metrics, collected and used items,
+ * and an optional visualization of player movement paths on the game map.
+ *
+ */
 public class ReportDialog extends JDialog {
 
     // Dados do relatório
     private GameMapGenerator gameMap;
     private ArrayUnorderedList<PlayerPath> playerPaths;
 
+    /**
+     * Creates a new ReportDialog with the specified game data and player statistics.
+     *
+     * @param parent the parent frame of this dialog
+     * @param players a list of all players in the game
+     * @param winner the player who won the game
+     * @param reportFile the path to the report file containing game data and paths
+     */
     public ReportDialog(JFrame parent, ArrayUnorderedList<Player> players, Player winner, String reportFile) {
         super(parent, "Relatório Final", true);
         setSize(GameConfig.REPORT_WINDOW_WIDTH, GameConfig.REPORT_WINDOW_HEIGHT);
@@ -52,6 +66,13 @@ public class ReportDialog extends JDialog {
         add(footerPanel, BorderLayout.SOUTH);
     }
 
+    /**
+     * Loads the report data from the specified report file, including the game map
+     * and player movement paths. If the file cannot be loaded or is invalid,
+     * initializes an empty path list.
+     *
+     * @param reportFile the path to the report file to load
+     */
     private void loadReportData(String reportFile) {
         ReportData data = Report.loadReport(reportFile);
         if (data != null) {
@@ -62,6 +83,14 @@ public class ReportDialog extends JDialog {
         }
     }
 
+    /**
+     * Creates the header panel displaying the winner's name and title.
+     * The panel uses a vertical box layout with the "VENCEDOR" label above
+     * the winner's name in large font.
+     *
+     * @param winner the player who won the game
+     * @return a JPanel containing the formatted winner header
+     */
     private JPanel createHeaderPanel(Player winner) {
         JPanel panel = new JPanel();
         panel.setLayout(new BoxLayout(panel, BoxLayout.Y_AXIS));
@@ -85,6 +114,15 @@ public class ReportDialog extends JDialog {
         return panel;
     }
 
+    /**
+     * Creates the main content panel with player statistics cards and optional map visualization.
+     * Iterates through all players and creates individual statistic cards for each, with
+     * vertical spacing between them. If the game map is available, adds a section showing
+     * the visualization of player movement paths on the map.
+     *
+     * @param players a list of all players whose statistics should be displayed
+     * @return a JPanel containing all player statistics cards and map visualization
+     */
     private JPanel createContentPanel(ArrayUnorderedList<Player> players) {
         JPanel mainPanel = new JPanel();
         mainPanel.setLayout(new BoxLayout(mainPanel, BoxLayout.Y_AXIS));
@@ -109,6 +147,13 @@ public class ReportDialog extends JDialog {
         return mainPanel;
     }
 
+    /**
+     * Creates a section displaying player movement paths on the game map.
+     * Uses the VisualizationPanel inner class to render the map with colored lines
+     * representing each player's path through the labyrinth.
+     *
+     * @return a JPanel containing the map visualization section with title and visualization
+     */
     private JPanel createMapSection() {
         JPanel panel = new JPanel();
         panel.setLayout(new BoxLayout(panel, BoxLayout.Y_AXIS));
@@ -129,6 +174,15 @@ public class ReportDialog extends JDialog {
         return panel;
     }
 
+    /**
+     * Creates a formatted statistics card for a single player.
+     * The card displays the player's name and multiple categories of statistics including
+     * movements, questions answered, collected items, and used items. Each category is
+     * organized with appropriate icons and color formatting for visual clarity.
+     *
+     * @param player the player whose statistics card should be created
+     * @return a JPanel containing the formatted player statistics card
+     */
     private JPanel createPlayerCard(Player player) {
         JPanel card = new JPanel();
         card.setLayout(new BorderLayout(15, 15));
@@ -152,7 +206,7 @@ public class ReportDialog extends JDialog {
         statsContainer.setLayout(new BoxLayout(statsContainer, BoxLayout.Y_AXIS));
         statsContainer.setBackground(Color.decode(GameConfig.STATS_PANEL_BACKGROUND_COLOR));
 
-        // Categoria 1: Movimentos
+        // Movement statistics category with total moves and lever interactions
         statsContainer.add(createCategoryPanel("Movimentos", 2,
                 new StatItem(null, "Movimentos", String.valueOf(player.getTotalMoves())),
                 new StatItem(null, "Interações com alavancas", String.valueOf(player.getLeverInteractions()))
@@ -160,7 +214,7 @@ public class ReportDialog extends JDialog {
 
         statsContainer.add(Box.createVerticalStrut(15));
 
-        // Categoria 2: Perguntas
+        // Question statistics category with correct and incorrect answers
         statsContainer.add(createCategoryPanel("Perguntas", 2,
                 new StatItem(null, "Corretas", String.valueOf(player.getQuestionsCorrect())),
                 new StatItem(null, "Incorretas", String.valueOf(player.getQuestionsIncorrect()))
@@ -173,14 +227,14 @@ public class ReportDialog extends JDialog {
         itemsContainer.setBackground(Color.decode(GameConfig.STATS_PANEL_BACKGROUND_COLOR));
         itemsContainer.setAlignmentX(Component.LEFT_ALIGNMENT);
 
-        // Categoria 3: Itens Coletados
+        // Item collection statistics with icons for pickaxes and ender pearls
         itemsContainer.add(createCategoryPanel("Itens Coletados", 1,
                 new StatItem(null, "Total Coletados", String.valueOf(player.getItemsCollected())),
                 new StatItem(GameConfig.PICKAXE_TEXTURE, "Picaretas", String.valueOf(player.getPickaxesCollected())),
                 new StatItem(GameConfig.ENDERPEARL_TEXTURE, "Pérolas do Fim", String.valueOf(player.getEnderPearlsCollected()))
         ));
 
-        // Categoria 4: Itens Usados
+        // Item usage statistics with icons for pickaxes and ender pearls
         itemsContainer.add(createCategoryPanel("Itens Usados", 1,
                 new StatItem(null, "Total Usados", String.valueOf(player.getItemsUsed())),
                 new StatItem(GameConfig.PICKAXE_TEXTURE, "Picaretas", String.valueOf(player.getPickaxesUsed())),
@@ -193,6 +247,17 @@ public class ReportDialog extends JDialog {
         return card;
     }
 
+    /**
+     * Creates a category panel for organizing related statistics.
+     * The panel displays a category title and arranges statistics in a grid with
+     * the specified number of columns. Each statistic is rendered with appropriate
+     * formatting and optional icons.
+     *
+     * @param categoryName the name of the statistics category to display
+     * @param columns the number of columns in the statistics grid
+     * @param stats variable number of StatItem objects to display in this category
+     * @return a JPanel containing the formatted category with all statistics
+     */
     private JPanel createCategoryPanel(String categoryName, int columns, StatItem... stats) {
         JPanel categoryPanel = new JPanel();
         categoryPanel.setLayout(new BoxLayout(categoryPanel, BoxLayout.Y_AXIS));
@@ -220,11 +285,19 @@ public class ReportDialog extends JDialog {
         return categoryPanel;
     }
 
+    /**
+     * Adds a single statistics row to a panel.
+     * The row displays a label and value, with an optional icon if the statistic texture is defined.
+     * The icon is automatically scaled to 16x16 pixels for consistent visual appearance.
+     *
+     * @param panel the JPanel to which the statistic row should be added
+     * @param stat the StatItem containing the statistic data, icon, and value to display
+     */
     private void addStatRow(JPanel panel, StatItem stat) {
         JPanel statPanel = new JPanel(new FlowLayout(FlowLayout.LEFT, 5, 0));
         statPanel.setBackground(Color.decode(GameConfig.STATS_PANEL_BACKGROUND_COLOR));
 
-        // Adicionar ícone
+        // Load and display icon if texture is provided
         if (stat.texture != null) {
             java.awt.image.BufferedImage img = Utils.ImageLoader.getImage(GameConfig.ITENS_PATH + stat.texture);
             if (img != null) {
@@ -248,6 +321,11 @@ public class ReportDialog extends JDialog {
         panel.add(statPanel);
     }
 
+    /**
+     * Creates the footer panel containing the close button.
+     *
+     * @return a JPanel containing the close button centered at the bottom
+     */
     private JPanel createFooterPanel() {
         JPanel panel = new JPanel();
         panel.setBackground(Color.decode(GameConfig.MAIN_WINDOW_BACKGROUND_COLOR));
@@ -261,6 +339,13 @@ public class ReportDialog extends JDialog {
         return panel;
     }
 
+    /**
+     * Creates a styled button with image textures and hover effects.
+     * The button changes appearance when hovered and includes custom text coloring.
+     *
+     * @param text the text to display on the button
+     * @return a styled JButton with image background and hover effects
+     */
     private JButton createButton(String text) {
         final java.awt.image.BufferedImage btnImg = Utils.ImageLoader.getImage(GameConfig.UI_PATH_TEXTURE + GameConfig.SHORT_BUTTON_TEXTURE);
         final java.awt.image.BufferedImage hoverBtnImg = Utils.ImageLoader.getImage(GameConfig.UI_PATH_TEXTURE + GameConfig.HOVER_SHORT_BUTTON_TEXTURE);
@@ -311,11 +396,21 @@ public class ReportDialog extends JDialog {
         return btn;
     }
 
+    /**
+     * VisualizationPanel is an inner class that renders the game map with player movement paths.
+     * It displays rooms connected by walls and overlays colored lines representing each player's
+     * path through the labyrinth during the game.
+     *
+     */
     private class VisualizationPanel extends JPanel {
 
         private final int ROOM_SIZE;
         private final BufferedImage floorTexture;
 
+        /**
+         * Creates a new VisualizationPanel, calculating the room size based on available space
+         * and the game map dimensions.
+         */
         public VisualizationPanel() {
             int availableWidth = 692;
             int mapWidth = gameMap != null ? gameMap.getWidth() : 21;
@@ -328,6 +423,11 @@ public class ReportDialog extends JDialog {
             floorTexture = Utils.ImageLoader.getImage(GameConfig.TEXTURES_PATH + GameConfig.FLOOR_TEXTURE);
         }
 
+        /**
+         * Renders the game map visualization including all rooms, walls, and player paths.
+         * Draws each room with appropriate textures and walls, then overlays player movement
+         * paths with distinct colors for each player.
+         */
         @Override
         protected void paintComponent(Graphics g) {
             super.paintComponent(g);
@@ -337,7 +437,7 @@ public class ReportDialog extends JDialog {
 
             Graphics2D g2d = (Graphics2D) g;
 
-            // Desenhar salas
+            // Draw all rooms with appropriate textures and walls
             for (int x = 0; x < gameMap.getWidth(); x++) {
                 for (int y = 0; y < gameMap.getHeight(); y++) {
                     Models.Room room = gameMap.getRoom(x, y);
@@ -345,15 +445,23 @@ public class ReportDialog extends JDialog {
                 }
             }
 
-            // Desenhar caminhos dos jogadores
+            // Overlay player movement paths with distinct colors for each player
             drawPlayerPaths(g2d);
         }
 
+        /**
+         * Draws all player paths on the map using distinct colors.
+         * Each player's path is rendered as a series of connected lines from their starting position
+         * to their final position. Colors are cycled through a predefined array for visual distinction.
+         *
+         * @param g2d the Graphics2D context for rendering
+         */
         private void drawPlayerPaths(Graphics2D g2d) {
             g2d.setStroke(new BasicStroke(Math.max(2, GameConfig.PATH_LINE_THICKNESS / 2)));
             Color[] colors = {Color.RED, Color.BLUE, Color.GREEN, Color.YELLOW, Color.CYAN, Color.MAGENTA};
             int colorIndex = 0;
 
+            // Iterate through all player paths and draw lines connecting consecutive positions
             Iterator<PlayerPath> it = playerPaths.iterator();
             while (it.hasNext()) {
                 PlayerPath pp = it.next();
@@ -364,6 +472,7 @@ public class ReportDialog extends JDialog {
                 while (pathIt.hasNext()) {
                     Point p = pathIt.next();
                     if (prev != null) {
+                        // Calculate screen coordinates from room coordinates
                         int x1 = prev.x * ROOM_SIZE + ROOM_SIZE / 2;
                         int y1 = prev.y * ROOM_SIZE + ROOM_SIZE / 2;
                         int x2 = p.x * ROOM_SIZE + ROOM_SIZE / 2;
@@ -376,10 +485,21 @@ public class ReportDialog extends JDialog {
             }
         }
 
+        /**
+         * Renders a single room at the specified map coordinates.
+         * Draws the room background (with floor texture or fallback color) and renders
+         * walls on all sides where no connections exist.
+         *
+         * @param g the Graphics2D context for rendering
+         * @param room the Room object containing position data
+         * @param x the x-coordinate of the room on the map grid
+         * @param y the y-coordinate of the room on the map grid
+         */
         private void drawRoom(Graphics2D g, Models.Room room, int x, int y) {
             int px = x * ROOM_SIZE;
             int py = y * ROOM_SIZE;
 
+            // Draw room background texture or fallback color
             if (floorTexture != null) {
                 g.drawImage(floorTexture, px, py, ROOM_SIZE, ROOM_SIZE, null);
             } else {
@@ -390,6 +510,7 @@ public class ReportDialog extends JDialog {
             g.setColor(Color.decode(GameConfig.WALL_COLOR_HEX));
             int thickness = Math.max(1, GameConfig.WALL_THICKNESS / 2);
 
+            // Draw walls on sides where no connection exists to adjacent rooms
             if (!hasConnection(room, "North")) {
                 g.fillRect(px, py, ROOM_SIZE, thickness);
             }
@@ -404,6 +525,13 @@ public class ReportDialog extends JDialog {
             }
         }
 
+        /**
+         * Checks if a connection exists between the given room and an adjacent room in the specified direction.
+         *
+         * @param room the Room to check connections from
+         * @param direction the direction to check ("North", "South", "East", or "West")
+         * @return true if a connection exists in the specified direction, false otherwise
+         */
         private boolean hasConnection(Models.Room room, String direction) {
             int targetX = room.getX();
             int targetY = room.getY();
@@ -435,13 +563,24 @@ public class ReportDialog extends JDialog {
         }
     }
 
-    // Classe auxiliar para representar uma estatística
+    /**
+     * StatItem is a helper class representing a single statistic to display in the report.
+     * Contains an optional texture path for an icon, a label, and a value.
+     *
+     */
     private static class StatItem {
 
         String texture;
         String label;
         String value;
 
+        /**
+         * Creates a new StatItem with the specified data.
+         *
+         * @param texture the texture path for the icon (null if no icon)
+         * @param label the label text for this statistic
+         * @param value the value text to display for this statistic
+         */
         StatItem(String texture, String label, String value) {
             this.texture = texture;
             this.label = label;

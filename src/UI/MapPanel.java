@@ -11,6 +11,13 @@ import java.awt.*;
 import java.awt.image.BufferedImage;
 import javax.swing.*;
 
+/**
+ * MapPanel displays the game map with all rooms, walls, game objects, and players.
+ * The panel renders the maze layout, handles player animations, manages game objects
+ * (levers, pickaxes, ender pearls, questions), and displays status messages.
+ * It uses double buffering and timer-based animation at 60 FPS for smooth player movement.
+ *
+ */
 public class MapPanel extends JPanel {
 
     private final GameManager gameManager;
@@ -22,6 +29,14 @@ public class MapPanel extends JPanel {
     private String currentStatusMessage = "";
     private long statusMessageTime = 0;
 
+    /**
+     * Creates a new MapPanel for displaying the game map and all game elements.
+     * Initializes the animation timer (60 FPS), loads all texture resources (floor,
+     * entrance, levers, items, player skins), and sets up the panel dimensions
+     * and background color.
+     *
+     * @param gameManager the GameManager instance controlling game state
+     */
     public MapPanel(GameManager gameManager) {
         this.gameManager = gameManager;
 
@@ -66,6 +81,12 @@ public class MapPanel extends JPanel {
         Player player;
         AnimationState state;
 
+        /**
+         * Creates a new PlayerAnimationPair associating a player with their animation state.
+         *
+         * @param p the player whose animation is tracked
+         * @param s the AnimationState containing position and timing information
+         */
         public PlayerAnimationPair(Player p, AnimationState s) {
             this.player = p;
             this.state = s;
@@ -90,6 +111,14 @@ public class MapPanel extends JPanel {
         int currentX, currentY;
         long startTime;
 
+        /**
+         * Creates a new AnimationState with initial position coordinates.
+         * Both start and target positions are initialized to the same values,
+         * with timing information set to zero.
+         *
+         * @param x the initial x-coordinate for the animation
+         * @param y the initial y-coordinate for the animation
+         */
         AnimationState(int x, int y) {
             this.startX = x;
             this.startY = y;
@@ -101,7 +130,13 @@ public class MapPanel extends JPanel {
         }
     }
 
-    // Method to set and display a temporary status message
+    /**
+     * Sets and displays a temporary status message on the game map.
+     * The message is displayed in a rounded rectangle box at the top of the panel
+     * and automatically disappears after the configured delay time.
+     *
+     * @param msg the status message text to display
+     */
     public void setStatusMessage(String msg) {
         this.currentStatusMessage = msg;
         this.statusMessageTime = System.currentTimeMillis();
@@ -118,7 +153,13 @@ public class MapPanel extends JPanel {
     }
 
     @Override
-    // Construction and rendering of the game map
+    /**
+     * Renders the complete game map including all rooms, walls, game objects, and animated players.
+     * Uses Graphics2D with anti-aliasing for smooth rendering. The map is centered on the panel
+     * and includes room textures, wall segments (permanent and breakable), game objects (levers,
+     * pickaxes, ender pearls, questions, treasure), and players with directional indicators.
+     * Handles player animation using interpolation and manages status message display.
+     */
     protected void paintComponent(Graphics g) {
         super.paintComponent(g);
         Graphics2D g2d = (Graphics2D) g;
@@ -132,10 +173,11 @@ public class MapPanel extends JPanel {
         int mapPixelWidth = GameConfig.MAP_WIDTH * cellSize;
         int mapPixelHeight = GameConfig.MAP_HEIGHT * cellSize;
 
+        // Calculate offsets to center the map on the panel
         int offsetX = (getWidth() - mapPixelWidth) / 2;
         int offsetY = (getHeight() - mapPixelHeight) / 2;
 
-        // Draw Rooms (Cells)
+        // Draw all rooms and their contents
         for (int x = 0; x < GameConfig.MAP_WIDTH; x++) {
             for (int y = 0; y < GameConfig.MAP_HEIGHT; y++) {
                 Room r = gameManager.getGameMap().getRoom(x, y);
@@ -248,18 +290,18 @@ public class MapPanel extends JPanel {
             if (p != null && p.getCurrentRoom() != null) {
                 Room r = p.getCurrentRoom();
 
-                // Target position
+                // Calculate target screen position from room coordinates
                 int targetPx = offsetX + r.getX() * cellSize;
                 int targetPy = offsetY + r.getY() * cellSize;
 
-                // Animation Logic
+                // Get or create animation state for this player
                 AnimationState state = getAnimationState(p);
                 if (state == null) {
                     state = new AnimationState(targetPx, targetPy);
                     playerAnimations.addToRear(new PlayerAnimationPair(p, state));
                 }
 
-                // Check if target changed
+                // Check if target position changed and initialize animation
                 if (state.targetX != targetPx || state.targetY != targetPy) {
                     state.startX = state.currentX;
                     state.startY = state.currentY;
@@ -271,7 +313,7 @@ public class MapPanel extends JPanel {
                     }
                 }
 
-                // Calculate interpolation
+                // Calculate smooth interpolated position using linear interpolation
                 long now = System.currentTimeMillis();
                 float progress = 1.0f;
 
@@ -280,6 +322,7 @@ public class MapPanel extends JPanel {
                 int startRoomY = (state.startY - offsetY) / cellSize;
                 Room startRoom = gameManager.getGameMap().getRoom(startRoomX, startRoomY);
 
+                // Increase animation duration for soul sand (slower movement)
                 if (startRoom != null && startRoom.isSoulSand()) {
                     duration = (int) (GameConfig.MOVEMENT_DURATION * 3.0);
                 }
@@ -291,7 +334,7 @@ public class MapPanel extends JPanel {
                 if (progress < 1.0f) {
                     progress = Math.max(0.0f, progress);
                     isAnimating = true;
-                    // Linear interpolation
+                    // Linear interpolation between start and target position
                     state.currentX = (int) (state.startX + (state.targetX - state.startX) * progress);
                     state.currentY = (int) (state.startY + (state.targetY - state.startY) * progress);
                 } else {
@@ -303,6 +346,7 @@ public class MapPanel extends JPanel {
                 int px = state.currentX;
                 int py = state.currentY;
 
+                // Select player skin texture based on character type
                 BufferedImage playerSkin;
                 String charType = p.getCharacterType();
                 if (charType != null) {
@@ -342,17 +386,17 @@ public class MapPanel extends JPanel {
                 int playerY = py + (cellSize - playerH) / 2;
                 g2d.drawImage(playerSkin, playerX, playerY, playerW, playerH, null);
 
-                // Highlight active player
+                // Highlight the current player with border and direction arrow
                 if (p.equals(gameManager.getCurrentPlayer())) {
                     g2d.setColor(Color.decode(GameConfig.PLAYER_OVERLAY_COLOR_HEX));
                     g2d.setStroke(new BasicStroke(GameConfig.PLAYER_SHADOW_SCALE));
                     g2d.drawRect(playerX, playerY, playerW, playerH);
 
-                    // Draw direction arrow
+                    // Draw direction arrow indicating player's last movement
                     drawDirectionArrow(g2d, playerX, playerY, playerW, playerH, p.getLastDirection());
                 }
 
-                // Highlight target player for Ender Pearl
+                // Highlight target player when selecting ender pearl destination
                 if (gameManager.isEnderPearlSelectionMode() && p.equals(gameManager.getSelectedTargetPlayer())) {
                     g2d.setColor(Color.RED);
                     g2d.setStroke(new BasicStroke(5));
@@ -387,6 +431,16 @@ public class MapPanel extends JPanel {
         }
     }
 
+    /**
+     * Retrieves the connection between two adjacent rooms.
+     * Searches through all connections of the given room to find one leading to
+     * the target room at the specified coordinates.
+     *
+     * @param r the Room to search connections from
+     * @param targetX the x-coordinate of the target room
+     * @param targetY the y-coordinate of the target room
+     * @return the Connection if one exists, null otherwise
+     */
     private Connection getConnection(Room r, int targetX, int targetY) {
         Iterator<Connection> it = gameManager.getGameMap().getGraph().getConnections(r).iterator();
         while (it.hasNext()) {
@@ -399,6 +453,20 @@ public class MapPanel extends JPanel {
         return null;
     }
 
+    /**
+     * Draws a wall segment between two points if no connection exists.
+     * Renders a permanent wall if no connection is found, or a breakable wall
+     * if the connection is locked. Uses different colors for each wall type.
+     *
+     * @param g2d the Graphics2D context for rendering
+     * @param r the Room from which the wall segment originates
+     * @param tx the x-coordinate of the target room
+     * @param ty the y-coordinate of the target room
+     * @param x1 the starting x-coordinate of the line
+     * @param y1 the starting y-coordinate of the line
+     * @param x2 the ending x-coordinate of the line
+     * @param y2 the ending y-coordinate of the line
+     */
     private void drawWallSegment(Graphics2D g2d, Room r, int tx, int ty, int x1, int y1, int x2, int y2) {
         Connection c = getConnection(r, tx, ty);
 
@@ -413,7 +481,18 @@ public class MapPanel extends JPanel {
         }
     }
 
-    // Draws an arrow indicating the player's movement direction
+    /**
+     * Draws a directional arrow indicator on the player showing their last movement direction.
+     * The arrow is drawn as a triangle pointing in one of four cardinal directions
+     * (UP, DOWN, LEFT, RIGHT) based on the direction parameter.
+     *
+     * @param g2d the Graphics2D context for rendering
+     * @param x the left x-coordinate of the player sprite
+     * @param y the top y-coordinate of the player sprite
+     * @param w the width of the player sprite
+     * @param h the height of the player sprite
+     * @param direction the direction string ("UP", "DOWN", "LEFT", "RIGHT", or null)
+     */
     private void drawDirectionArrow(Graphics2D g2d, int x, int y, int w, int h, String direction) {
         if (direction == null) {
             return;
@@ -423,6 +502,7 @@ public class MapPanel extends JPanel {
         int[] xPoints = new int[3];
         int[] yPoints = new int[3];
 
+        // Define arrow coordinates for each direction (triangle pointing outward)
         switch (direction.toUpperCase()) {
             case "UP" -> {
                 xPoints[0] = x + w / 2 - arrowSize;

@@ -5,6 +5,10 @@ import UI.StatsPanel;
 import java.awt.event.KeyAdapter;
 import java.awt.event.KeyEvent;
 
+/**
+ * Controls the game input and interaction between the user and the game logic.
+ * Extends KeyAdapter to handle keyboard events.
+ */
 public class GameController extends KeyAdapter {
 
     // ----------------------------------------------------------------
@@ -17,6 +21,12 @@ public class GameController extends KeyAdapter {
     // ----------------------------------------------------------------
     // Constructor
     // ----------------------------------------------------------------
+    /**
+     * Constructor for GameController.
+     *
+     * @param gameManager the game manager instance
+     * @param mapPanel    the map panel to repaint on updates
+     */
     public GameController(GameManager gameManager, MapPanel mapPanel) {
         this.gameManager = gameManager;
         this.mapPanel = mapPanel;
@@ -25,6 +35,11 @@ public class GameController extends KeyAdapter {
     // ----------------------------------------------------------------
     // Methods
     // ----------------------------------------------------------------
+    /**
+     * Sets the stats panel to update player statistics.
+     *
+     * @param statsPanel the stats panel instance
+     */
     public void setStatsPanel(StatsPanel statsPanel) {
         this.statsPanel = statsPanel;
     }
@@ -32,6 +47,11 @@ public class GameController extends KeyAdapter {
     // ----------------------------------------------------------------
     // Key Events
     // ----------------------------------------------------------------
+    /**
+     * Handles key pressed events to control the game.
+     *
+     * @param e the key event
+     */
     @Override
     public void keyPressed(KeyEvent e) {
         if (gameManager.getCurrentPlayer() == null || gameManager.getCurrentPlayer().isBot()) {

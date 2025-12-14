@@ -9,6 +9,12 @@ import java.awt.image.BufferedImage;
 import javax.swing.*;
 import javax.swing.border.EmptyBorder;
 
+/**
+ * SetupPanel provides the user interface for configuring the game before play.
+ * Allows selection of number of players, setting player names, choosing character
+ * skins, and designating players as AI or human-controlled.
+ * 
+ */
 public class SetupPanel extends JPanel {
 
     private final JComboBox<Integer> numPlayersCombo;
@@ -19,6 +25,13 @@ public class SetupPanel extends JPanel {
     private final JButton startBtn;
     private final JButton backBtn;
 
+    /**
+     * Creates a new SetupPanel with the specified action listeners for start and back buttons.
+     * Initializes all UI components and sets up the game configuration interface.
+     *
+     * @param startAction the ActionListener for the start game button
+     * @param backAction the ActionListener for the back to menu button
+     */
     public SetupPanel(ActionListener startAction, ActionListener backAction) {
         setLayout(new BorderLayout());
         setBorder(BorderFactory.createEmptyBorder(30, 50, 30, 50));
@@ -98,6 +111,13 @@ public class SetupPanel extends JPanel {
         updateNameFields();
     }
 
+    /**
+     * Creates a custom styled button with hover effects and background images.
+     * The button displays different images based on hover state.
+     *
+     * @param text the text to display on the button
+     * @return a JButton with modern styling and hover effects
+     */
     private JButton createButton(String text) {
         final BufferedImage btnImg = Utils.ImageLoader.getImage(GameConfig.UI_PATH_TEXTURE + GameConfig.SHORT_BUTTON_TEXTURE);
         final BufferedImage hoverBtnImg = Utils.ImageLoader.getImage(GameConfig.UI_PATH_TEXTURE + GameConfig.HOVER_SHORT_BUTTON_TEXTURE);
@@ -146,6 +166,12 @@ public class SetupPanel extends JPanel {
         return btn;
     }
 
+    /**
+     * Updates the player configuration panels based on the selected number of players.
+     * Clears existing panels and creates new ones for each player.
+     * Uses GridLayout to arrange panels appropriately for 2 or 4 players.
+     *
+     */
     private void updateNameFields() {
         namesPanel.setVisible(false);
         namesPanel.removeAll();
@@ -170,22 +196,30 @@ public class SetupPanel extends JPanel {
         namesPanel.repaint();
     }
 
+    /**
+     * Creates a single player configuration panel containing name field, 
+     * character selection, AI checkbox, and character image preview.
+     * Includes modern styling with rounded corners and transparent backgrounds.
+     *
+     * @param playerNum the player number (1-based index)
+     * @return a JPanel containing all player configuration elements
+     */
     private JPanel createPlayerPanel(int playerNum) {
         JPanel outerPanel = new JPanel(new BorderLayout());
         outerPanel.setOpaque(false);
         
-        // Card panel with rounded corners and semi-transparent background
+        // Create card panel with rounded corners and semi-transparent background
         JPanel cardPanel = new JPanel(new BorderLayout()) {
             @Override
             protected void paintComponent(Graphics g) {
                 Graphics2D g2d = (Graphics2D) g.create();
                 g2d.setRenderingHint(RenderingHints.KEY_ANTIALIASING, RenderingHints.VALUE_ANTIALIAS_ON);
                 
-                // Semi-transparent dark background
+                // Semi-transparent dark background for card effect
                 g2d.setColor(new Color(30, 30, 30, 200));
                 g2d.fill(new RoundRectangle2D.Double(0, 0, getWidth(), getHeight(), 20, 20));
                 
-                // Subtle border
+                // Subtle border around the card
                 g2d.setColor(new Color(80, 80, 80, 150));
                 g2d.setStroke(new BasicStroke(2));
                 g2d.draw(new RoundRectangle2D.Double(1, 1, getWidth()-2, getHeight()-2, 20, 20));
@@ -196,6 +230,7 @@ public class SetupPanel extends JPanel {
         cardPanel.setOpaque(false);
         cardPanel.setBorder(new EmptyBorder(18, 18, 18, 18));
         
+        // Create content panel with GridBagLayout for precise component positioning
         JPanel contentPanel = new JPanel(new GridBagLayout());
         contentPanel.setOpaque(false);
         
@@ -203,7 +238,7 @@ public class SetupPanel extends JPanel {
         gbc.insets = new Insets(6, 8, 6, 8);
         gbc.fill = GridBagConstraints.HORIZONTAL;
         
-        // Player number header
+        // Player number header with golden color
         JLabel playerLabel = new JLabel("Jogador " + playerNum);
         playerLabel.setForeground(new Color(255, 215, 0));
         playerLabel.setFont(new Font("Arial", Font.BOLD, 18));
@@ -215,20 +250,21 @@ public class SetupPanel extends JPanel {
         gbc.gridwidth = 1;
         gbc.anchor = GridBagConstraints.WEST;
         
-        // Name Label
+        // Name label and input field
         JLabel nameLabel = new JLabel("Nome:");
         nameLabel.setForeground(new Color(200, 200, 200));
         nameLabel.setFont(new Font("Arial", Font.PLAIN, 14));
         gbc.gridx = 0; gbc.gridy = 1;
         contentPanel.add(nameLabel, gbc);
         
-        // Name Field with modern style
+        // Name text field with rounded corners and custom rendering
         JTextField nameField = new JTextField("Jogador " + playerNum) {
             @Override
             protected void paintComponent(Graphics g) {
                 Graphics2D g2d = (Graphics2D) g.create();
                 g2d.setRenderingHint(RenderingHints.KEY_ANTIALIASING, RenderingHints.VALUE_ANTIALIAS_ON);
                 
+                // Draw rounded rectangle background
                 g2d.setColor(new Color(50, 50, 50));
                 g2d.fill(new RoundRectangle2D.Double(0, 0, getWidth(), getHeight(), 10, 10));
                 
@@ -247,14 +283,14 @@ public class SetupPanel extends JPanel {
         gbc.gridx = 1; gbc.gridy = 1;
         contentPanel.add(nameField, gbc);
         
-        // Skin Label
+        // Skin label and selection dropdown
         JLabel skinLabel = new JLabel("Skin:");
         skinLabel.setForeground(new Color(200, 200, 200));
         skinLabel.setFont(new Font("Arial", Font.PLAIN, 14));
         gbc.gridx = 0; gbc.gridy = 2;
         contentPanel.add(skinLabel, gbc);
         
-        // Skin Combo with modern style
+        // Skin combo box with character selection
         String[] chars = {"Steve", "Alex", "Villager", "Enderman", "Zombie", "Skeleton", "Creeper", "Dragon", "Spider", "Slime", "Wither"};
         JComboBox<String> skinCombo = new JComboBox<>(chars);
         skinCombo.setPreferredSize(new Dimension(160, 30));
@@ -267,13 +303,14 @@ public class SetupPanel extends JPanel {
         gbc.gridx = 1; gbc.gridy = 2;
         contentPanel.add(skinCombo, gbc);
         
-        // AI Checkbox with modern style
+        // AI checkbox with custom rendering
         JCheckBox aiCheck = new JCheckBox("Jogador IA") {
             @Override
             protected void paintComponent(Graphics g) {
                 Graphics2D g2d = (Graphics2D) g.create();
                 g2d.setRenderingHint(RenderingHints.KEY_ANTIALIASING, RenderingHints.VALUE_ANTIALIAS_ON);
                 
+                // Highlight checkbox when selected
                 if (isSelected()) {
                     g2d.setColor(new Color(255, 215, 0, 50));
                     g2d.fill(new RoundRectangle2D.Double(0, 0, getWidth(), getHeight(), 8, 8));
@@ -296,7 +333,7 @@ public class SetupPanel extends JPanel {
         
         cardPanel.add(contentPanel, BorderLayout.CENTER);
         
-        // Image Preview with modern frame
+        // Create image preview panel with custom border and glow effect
         JPanel imagePanel = new JPanel(new BorderLayout()) {
             @Override
             protected void paintComponent(Graphics g) {
@@ -306,12 +343,13 @@ public class SetupPanel extends JPanel {
         imagePanel.setOpaque(false);
         imagePanel.setPreferredSize(new Dimension(74, 74));
         
+        // Image label with golden border and glow effect
         JLabel imageLabel = new JLabel() {
             @Override
             protected void paintComponent(Graphics g) {
                 super.paintComponent(g);
                 
-                // Draw border exactly around the image
+                // Draw custom border and glow around image
                 if (getIcon() != null) {
                     Graphics2D g2d = (Graphics2D) g.create();
                     g2d.setRenderingHint(RenderingHints.KEY_ANTIALIASING, RenderingHints.VALUE_ANTIALIAS_ON);
@@ -320,11 +358,11 @@ public class SetupPanel extends JPanel {
                     int x = (getWidth() - imgSize) / 2;
                     int y = (getHeight() - imgSize) / 2;
                     
-                    // Glow effect
+                    // Glow effect with transparency
                     g2d.setColor(new Color(255, 215, 0, 30));
                     g2d.fillRect(x - 3, y - 3, imgSize + 6, imgSize + 6);
                     
-                    // Border exactly around the image
+                    // Golden border around image
                     g2d.setColor(new Color(255, 215, 0));
                     g2d.setStroke(new BasicStroke(2));
                     g2d.drawRect(x - 1, y - 1, imgSize + 2, imgSize + 2);
@@ -336,6 +374,7 @@ public class SetupPanel extends JPanel {
         imageLabel.setHorizontalAlignment(SwingConstants.CENTER);
         imagePanel.add(imageLabel, BorderLayout.CENTER);
         
+        // Update image preview when skin selection changes
         skinCombo.addActionListener(e -> updatePlayerImage(imageLabel, (String) skinCombo.getSelectedItem()));
         updatePlayerImage(imageLabel, (String) skinCombo.getSelectedItem());
         
@@ -346,6 +385,13 @@ public class SetupPanel extends JPanel {
         return outerPanel;
     }
 
+    /**
+     * Updates the character image preview based on the selected skin.
+     * Maps skin names to their corresponding image files and scales them appropriately.
+     *
+     * @param label the JLabel to update with the new image
+     * @param skinName the name of the selected character skin
+     */
     private void updatePlayerImage(JLabel label, String skinName) {
         String fileName = switch (skinName) {
             case "Steve" -> GameConfig.HEAD_STEVE;
@@ -372,6 +418,7 @@ public class SetupPanel extends JPanel {
     @Override
     protected void paintComponent(Graphics g) {
         super.paintComponent(g);
+        // Load and draw background image centered on the panel
         BufferedImage bg = Utils.ImageLoader.getImage(Utils.GameConfig.BACKGROUND_PATH + Utils.GameConfig.SETUP_BACKGROUND_TEXTURE);
         if (bg != null) {
             int imgW = bg.getWidth();
@@ -381,7 +428,7 @@ public class SetupPanel extends JPanel {
             int x = 0;
             int y = 0;
 
-            // Center the image
+            // Center the background image on the panel
             if (imgW > panelW) {
                 x = -(imgW - panelW) / 2;
             } else if (imgW < panelW) {
@@ -394,11 +441,18 @@ public class SetupPanel extends JPanel {
             }
             g.drawImage(bg, x, y, imgW, imgH, this);
         } else {
+            // Fallback solid background if image not available
             g.setColor(new Color(40, 40, 40));
             g.fillRect(0, 0, getWidth(), getHeight());
         }
     }
 
+    /**
+     * Returns the list of player names entered in the configuration panel.
+     * Iterates through all name fields and collects their text values.
+     *
+     * @return an ArrayUnorderedList of player names
+     */
     public ArrayUnorderedList<String> getPlayerNames() {
         ArrayUnorderedList<String> names = new ArrayUnorderedList<>();
         DataStructures.Iterator<JTextField> it = nameFields.iterator();
@@ -408,6 +462,12 @@ public class SetupPanel extends JPanel {
         return names;
     }
 
+    /**
+     * Returns the list of player types (AI or human).
+     * Iterates through all checkboxes and returns their selection state.
+     *
+     * @return an ArrayUnorderedList of booleans indicating if player is AI
+     */
     public ArrayUnorderedList<Boolean> getPlayerTypes() {
         ArrayUnorderedList<Boolean> types = new ArrayUnorderedList<>();
         DataStructures.Iterator<JCheckBox> it = typeCheckboxes.iterator();
@@ -417,6 +477,12 @@ public class SetupPanel extends JPanel {
         return types;
     }
 
+    /**
+     * Returns the list of selected character types for each player.
+     * Iterates through all character combo boxes and collects selected items.
+     *
+     * @return an ArrayUnorderedList of character names
+     */
     public ArrayUnorderedList<String> getPlayerCharacters() {
         ArrayUnorderedList<String> chars = new ArrayUnorderedList<>();
         DataStructures.Iterator<JComboBox<String>> it = charCombos.iterator();

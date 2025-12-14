@@ -7,16 +7,27 @@ import Models.Room;
 import java.io.FileWriter;
 import java.io.IOException;
 
+/**
+ * MapSerializer provides functionality to serialize a game map into a JSON file.
+ * It manually constructs the JSON string representing the map's dimensions, rooms,
+ * connections, and lever configurations.
+ */
 public class MapSerializer {
 
+    /**
+     * Saves the specified GameMapGenerator state to a JSON file.
+     *
+     * @param map      the GameMapGenerator containing the map data to serialize
+     * @param filename the name of the file to write the JSON data to
+     */
     public static void saveToJson(GameMapGenerator map, String filename) {
-        // Serialize map to JSON
+        // Initialize StringBuilder to construct the JSON string
         StringBuilder sb = new StringBuilder();
         sb.append("{\n");
         sb.append("  \"width\": ").append(map.getWidth()).append(",\n");
         sb.append("  \"height\": ").append(map.getHeight()).append(",\n");
 
-        // Rooms
+        // Serialize Rooms section
         sb.append("  \"rooms\": [\n");
         for (int x = 0; x < map.getWidth(); x++) {
             for (int y = 0; y < map.getHeight(); y++) {
@@ -31,6 +42,8 @@ public class MapSerializer {
                 sb.append("\"hasEnderPearl\": ").append(r.hasEnderPearl()).append(", ");
                 sb.append("\"hasLever\": ").append(r.hasLever());
                 sb.append("}");
+                
+                // Add a comma if this is not the last room
                 if (x != map.getWidth() - 1 || y != map.getHeight() - 1) {
                     sb.append(",");
                 }
@@ -39,12 +52,14 @@ public class MapSerializer {
         }
         sb.append("  ],\n");
 
-        // Connections
+        // Serialize Connections section
         sb.append("  \"connections\": [\n");
         boolean firstConn = true;
         for (int x = 0; x < map.getWidth(); x++) {
             for (int y = 0; y < map.getHeight(); y++) {
                 Room r = map.getRoom(x, y);
+                
+                // Iterate over connections for the current room
                 Iterator<Connection> it = map.getGraph().getConnections(r).iterator();
                 while (it.hasNext()) {
                     Connection c = it.next();
@@ -64,12 +79,14 @@ public class MapSerializer {
         }
         sb.append("\n  ],\n");
 
-        // Levers
+        // Serialize Levers section
         sb.append("  \"levers\": [\n");
         boolean firstLev = true;
         for (int x = 0; x < map.getWidth(); x++) {
             for (int y = 0; y < map.getHeight(); y++) {
                 Room r = map.getRoom(x, y);
+                
+                // Only process if the room actually has a lever
                 if (r.hasLever()) {
                     if (!firstLev) {
                         sb.append(",\n");
@@ -79,6 +96,7 @@ public class MapSerializer {
                     sb.append("\"y\": ").append(y).append(", ");
                     sb.append("\"targets\": [");
 
+                    // Iterate over the target connections controlled by this lever
                     Iterator<Connection> it = r.getLever().getTargets().iterator();
                     boolean firstTarget = true;
                     while (it.hasNext()) {
@@ -104,6 +122,7 @@ public class MapSerializer {
         sb.append("\n  ]\n");
         sb.append("}");
 
+        // Write the constructed JSON string to the file
         try (FileWriter fw = new FileWriter(filename)) {
             fw.write(sb.toString());
             System.out.println("Map saved to " + filename);

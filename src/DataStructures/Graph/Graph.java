@@ -407,21 +407,38 @@ public class Graph<T> implements GraphADT<T> {
         return result;
     }
 
+    /**
+     * Expands the capacity of this graph by doubling the size of both the
+     * vertices array and adjacency matrix. Copies all existing data to the
+     * larger arrays while preserving the current graph structure.
+     */
     protected void expandCapacity() {
+        // Create new arrays with doubled capacity
         Object[] largerVertices = new Object[vertices.length * 2];
         boolean[][] largerAdjMatrix = new boolean[vertices.length * 2][vertices.length * 2];
 
+        // Copy existing vertices to new array
         System.arraycopy(vertices, 0, largerVertices, 0, numVertices);
 
+        // Copy existing adjacency matrix rows to new matrix
         for (int i = 0; i < numVertices; i++) {
             System.arraycopy(adjMatrix[i], 0, largerAdjMatrix[i], 0, numVertices);
         }
 
+        // Update references to use larger arrays
         vertices = largerVertices;
         adjMatrix = largerAdjMatrix;
     }
 
+    /**
+     * Returns the index of the specified vertex in the vertices array.
+     * Performs a linear search through the array comparing vertices using equals().
+     *
+     * @param vertex the vertex to search for
+     * @return the index of the vertex if found, -1 if not found
+     */
     protected int getIndex(T vertex) {
+        // Linearly search through all vertices for a matching element
         for (int i = 0; i < numVertices; i++) {
             if (vertices[i].equals(vertex)) {
                 return i;
@@ -430,12 +447,26 @@ public class Graph<T> implements GraphADT<T> {
         return -1;
     }
 
+    /**
+     * Returns true if the specified index is valid for this graph.
+     * Valid indices range from 0 (inclusive) to numVertices (exclusive).
+     *
+     * @param index the index to validate
+     * @return true if the index is within valid bounds, false otherwise
+     */
     protected boolean indexIsValid(int index) {
         return ((index >= 0) && (index < numVertices));
     }
 
+    /**
+     * Returns an ArrayUnorderedList containing all vertices in this graph.
+     * Iterates through the vertices array and copies all elements into the result list.
+     *
+     * @return an ArrayUnorderedList containing all vertices in this graph
+     */
     public ArrayUnorderedList<T> getVertices() {
         ArrayUnorderedList<T> list = new ArrayUnorderedList<>();
+        // Iterate through all valid vertices and add them to the result list
         for (int i = 0; i < numVertices; i++) {
             list.add((T) vertices[i]);
         }
